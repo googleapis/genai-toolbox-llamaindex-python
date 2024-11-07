@@ -1,7 +1,8 @@
 from typing import Optional
 
 from aiohttp import ClientSession
-from llama_index.core.tools import FunctionTool
+from langchain_core.tools import StructuredTool
+from pydantic import BaseModel
 
 from .utils import ManifestSchema, _invoke_tool, _load_yaml, _schema_to_model
 
@@ -47,9 +48,11 @@ class ToolboxClient:
         url = f"{self._url}/api/toolset/{toolset_name or ''}"
         return await _load_yaml(url, self._session)
 
-    def _generate_tool(self, tool_name: str, manifest: ManifestSchema) -> FunctionTool:
+    def _generate_tool(
+        self, tool_name: str, manifest: ManifestSchema
+    ) -> StructuredTool:
         """
-        Creates a FunctionTool object and a dynamically generated BaseModel for the given tool.
+        Creates a StructuredTool object and a dynamically generated BaseModel for the given tool.
 
         Args:
             tool_name: The name of the tool to generate.
@@ -59,21 +62,21 @@ class ToolboxClient:
             The generated tool.
         """
         tool_schema = manifest.tools[tool_name]
-        tool_model = _schema_to_model(
+        tool_model: BaseModel = _schema_to_model(
             model_name=tool_name, schema=tool_schema.parameters
         )
 
         async def _tool_func(**kwargs) -> dict:
             return await _invoke_tool(self._url, self._session, tool_name, kwargs)
 
-        return FunctionTool.from_defaults(
-            async_fn=_tool_func,
+        return StructuredTool.from_function(
+            coroutine=_tool_func,
             name=tool_name,
             description=tool_schema.description,
-            fn_schema=tool_model,
+            args_schema=tool_model,
         )
 
-    async def load_tool(self, tool_name: str) -> FunctionTool:
+    async def load_tool(self, tool_name: str) -> StructuredTool:
         """
         Loads the tool, with the given tool name, from the Toolbox service.
 
@@ -88,7 +91,7 @@ class ToolboxClient:
 
     async def load_toolset(
         self, toolset_name: Optional[str] = None
-    ) -> list[FunctionTool]:
+    ) -> list[StructuredTool]:
         """
         Loads tools from the Toolbox service, optionally filtered by toolset name.
 
@@ -99,7 +102,7 @@ class ToolboxClient:
         Returns:
             A list of all tools loaded from the Toolbox.
         """
-        tools: list[FunctionTool] = []
+        tools: list[StructuredTool] = []
         manifest: ManifestSchema = await self._load_toolset_manifest(toolset_name)
         for tool_name in manifest.tools:
             tools.append(self._generate_tool(tool_name, manifest))

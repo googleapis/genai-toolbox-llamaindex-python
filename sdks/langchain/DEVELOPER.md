@@ -9,7 +9,7 @@ Below are the details to set up a development environment and run tests.
     ```
 1. Navigate to the SDK directory:
     ```bash
-    cd genai-toolbox/sdks/llamaindex
+    cd genai-toolbox/sdks/langchain
     ```
 1. Install the package in editable mode, so changes are reflected without
    reinstall:
@@ -23,7 +23,7 @@ Below are the details to set up a development environment and run tests.
 ## Test
 1. Navigate to the SDK directory:
     ```bash
-    cd genai-toolbox/sdks/llamaindex
+    cd genai-toolbox/sdks/langchain
     ```
 1. Install the SDK and test dependencies:
     ```bash

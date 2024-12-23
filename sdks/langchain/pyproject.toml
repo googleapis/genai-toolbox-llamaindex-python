@@ -1,14 +1,14 @@
 [project]
-name = "toolbox-llamaindex-sdk"
+name = "toolbox-langchain-sdk"
 version="0.0.1"
-description = "Python SDK for interacting with the Toolbox service with LlamaIndex"
+description = "Python SDK for interacting with the Toolbox service with LangChain"
 license = {file = "LICENSE"}
 requires-python = ">=3.9"
 authors = [
     {name = "Google LLC", email = "googleapis-packages@google.com"}
 ]
 dependencies = [
-    "llama-index>=0.11.2,<1.0.0",
+    "langchain-core>=0.2.23,<1.0.0",
     "PyYAML>=6.0.1,<7.0.0",
     "pydantic>=2.7.0,<3.0.0",
     "aiohttp>=3.8.6,<4.0.0",

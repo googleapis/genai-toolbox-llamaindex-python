@@ -7,10 +7,9 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import aiohttp
 import pytest
-from aiohttp import ClientSession
 from pydantic import BaseModel
 
-from toolbox_llamaindex_sdk.utils import (
+from toolbox_langchain_sdk.utils import (
     ParameterSchema,
     _convert_none_to_empty_string,
     _invoke_tool,
@@ -176,7 +175,11 @@ class TestUtils:
         mock_post.return_value.__aenter__.return_value = mock_response
 
         result = await _invoke_tool(
-            "http://localhost:8000", ClientSession(), "tool_name", {"input": "data"}, {}
+            "http://localhost:8000",
+            aiohttp.ClientSession(),
+            "tool_name",
+            {"input": "data"},
+            {},
         )
 
         mock_post.assert_called_once_with(
@@ -200,7 +203,7 @@ class TestUtils:
         ):
             result = await _invoke_tool(
                 "http://localhost:8000",
-                ClientSession(),
+                aiohttp.ClientSession(),
                 "tool_name",
                 {"input": "data"},
                 {"my_test_auth": lambda: "fake_id_token"},
@@ -216,7 +219,7 @@ class TestUtils:
     @pytest.mark.asyncio
     @patch("aiohttp.ClientSession.post")
     async def test_invoke_tool_secure_with_auth(self, mock_post):
-        session = ClientSession()
+        session = aiohttp.ClientSession()
         mock_response = Mock()
         mock_response.raise_for_status = Mock()
         mock_response.json = AsyncMock(return_value={"key": "value"})

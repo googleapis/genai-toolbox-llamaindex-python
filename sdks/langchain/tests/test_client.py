@@ -4,11 +4,11 @@ from unittest.mock import AsyncMock, Mock, call, patch
 
 import aiohttp
 import pytest
-from llama_index.core.tools import FunctionTool
-from llama_index.core.tools.types import ToolMetadata, ToolOutput
+from langchain_core.tools import StructuredTool
+from pydantic import BaseModel
 
-from toolbox_llamaindex_sdk import ToolboxClient
-from toolbox_llamaindex_sdk.utils import ManifestSchema, ParameterSchema, ToolSchema
+from toolbox_langchain_sdk import ToolboxClient
+from toolbox_langchain_sdk.utils import ManifestSchema, ParameterSchema, ToolSchema
 
 # Sample manifest data for testing
 manifest_data = {
@@ -72,7 +72,7 @@ async def test_close_not_closing_session():
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 async def test_load_tool_manifest_success(mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.return_value = ManifestSchema(**manifest_data)
@@ -85,7 +85,7 @@ async def test_load_tool_manifest_success(mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 async def test_load_tool_manifest_failure(mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.side_effect = Exception("Failed to load manifest")
@@ -96,7 +96,7 @@ async def test_load_tool_manifest_failure(mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 async def test_load_toolset_manifest_success(mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.return_value = ManifestSchema(**manifest_data)
@@ -118,7 +118,7 @@ async def test_load_toolset_manifest_success(mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 async def test_load_toolset_manifest_failure(mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.side_effect = Exception("Failed to load manifest")
@@ -133,13 +133,20 @@ async def test_generate_tool_success():
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     tool = client._generate_tool("test_tool", ManifestSchema(**manifest_data))
 
-    assert isinstance(tool, FunctionTool)
-    assert tool.metadata.name == "test_tool"
-    assert tool.metadata.description == "This is test tool."
-    assert (
-        tool.metadata.fn_schema_str
-        == '{"properties": {"param1": {"anyOf": [{"type": "string"}, {"type": "null"}], "description": "Parameter 1", "title": "Param1"}, "param2": {"anyOf": [{"type": "integer"}, {"type": "null"}], "description": "Parameter 2", "title": "Param2"}}, "required": ["param1", "param2"], "type": "object"}'
-    )
+    assert isinstance(tool, StructuredTool)
+    assert tool.name == "test_tool"
+    assert tool.description == "This is test tool."
+    assert tool.args is not None
+
+    assert "param1" in tool.args
+    assert tool.args["param1"]["title"] == "Param1"
+    assert tool.args["param1"]["description"] == "Parameter 1"
+    assert tool.args["param1"]["anyOf"] == [{"type": "string"}, {"type": "null"}]
+
+    assert "param2" in tool.args
+    assert tool.args["param2"]["title"] == "Param2"
+    assert tool.args["param2"]["description"] == "Parameter 2"
+    assert tool.args["param2"]["anyOf"] == [{"type": "integer"}, {"type": "null"}]
 
 
 @pytest.mark.asyncio
@@ -152,24 +159,22 @@ async def test_generate_tool_missing_tool():
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._load_tool_manifest")
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._generate_tool")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._load_tool_manifest")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._generate_tool")
 async def test_load_tool_success(mock_generate_tool, mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.return_value = ManifestSchema(**manifest_data)
-    mock_generate_tool.return_value = FunctionTool(
-        metadata=ToolMetadata(
-            name="test_tool",
-            description="This is test tool.",
-            fn_schema=None,
-        ),
-        async_fn=AsyncMock(),
+    mock_generate_tool.return_value = StructuredTool(
+        name="test_tool",
+        description="This is test tool.",
+        args_schema=BaseModel,
+        coroutine=AsyncMock(),
     )
 
     tool = await client.load_tool("test_tool")
 
-    assert isinstance(tool, FunctionTool)
-    assert tool.metadata.name == "test_tool"
+    assert isinstance(tool, StructuredTool)
+    assert tool.name == "test_tool"
     mock_load_manifest.assert_called_once_with("test_tool")
     mock_generate_tool.assert_called_once_with(
         "test_tool", ManifestSchema(**manifest_data)
@@ -177,7 +182,7 @@ async def test_load_tool_success(mock_generate_tool, mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._load_tool_manifest")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._load_tool_manifest")
 async def test_load_tool_failure(mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.side_effect = Exception("Failed to load manifest")
@@ -188,37 +193,33 @@ async def test_load_tool_failure(mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._load_toolset_manifest")
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._generate_tool")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._load_toolset_manifest")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._generate_tool")
 async def test_load_toolset_success(mock_generate_tool, mock_load_manifest):
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
     mock_load_manifest.return_value = ManifestSchema(**manifest_data)
     mock_generate_tool.side_effect = [
-        FunctionTool(
-            metadata=ToolMetadata(
-                name="test_tool",
-                description="This is test tool.",
-                fn_schema=None,
-            ),
-            async_fn=AsyncMock(),
+        StructuredTool(
+            name="test_tool",
+            description="This is test tool.",
+            args_schema=BaseModel,
+            coroutine=AsyncMock(),
         ),
-        FunctionTool(
-            metadata=ToolMetadata(
-                name="test_tool2",
-                description="This is test tool 2.",
-                fn_schema=None,
-            ),
-            async_fn=AsyncMock(),
+        StructuredTool(
+            name="test_tool2",
+            description="This is test tool 2.",
+            args_schema=BaseModel,
+            coroutine=AsyncMock(),
         ),
     ] * 2
 
     # Test with toolset name
     tools = await client.load_toolset(toolset_name="test_toolset")
     assert len(tools) == 2
-    assert isinstance(tools[0], FunctionTool)
-    assert tools[0].metadata.name == "test_tool"
-    assert isinstance(tools[1], FunctionTool)
-    assert tools[1].metadata.name == "test_tool2"
+    assert isinstance(tools[0], StructuredTool)
+    assert tools[0].name == "test_tool"
+    assert isinstance(tools[1], StructuredTool)
+    assert tools[1].name == "test_tool2"
     mock_load_manifest.assert_called_once_with("test_toolset")
     mock_generate_tool.assert_has_calls(
         [
@@ -232,10 +233,10 @@ async def test_load_toolset_success(mock_generate_tool, mock_load_manifest):
     # Test without toolset name
     tools = await client.load_toolset()
     assert len(tools) == 2
-    assert isinstance(tools[0], FunctionTool)
-    assert tools[0].metadata.name == "test_tool"
-    assert isinstance(tools[1], FunctionTool)
-    assert tools[1].metadata.name == "test_tool2"
+    assert isinstance(tools[0], StructuredTool)
+    assert tools[0].name == "test_tool"
+    assert isinstance(tools[1], StructuredTool)
+    assert tools[1].name == "test_tool2"
     mock_load_manifest.assert_called_once_with(None)
     mock_generate_tool.assert_has_calls(
         [
@@ -246,7 +247,7 @@ async def test_load_toolset_success(mock_generate_tool, mock_load_manifest):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.ToolboxClient._load_toolset_manifest")
+@patch("toolbox_langchain_sdk.client.ToolboxClient._load_toolset_manifest")
 async def test_load_toolset_failure(mock_load_manifest):
     """Test handling of _load_toolset_manifest failure."""
     client = ToolboxClient("https://my-toolbox.com", session=aiohttp.ClientSession())
@@ -259,7 +260,7 @@ async def test_load_toolset_failure(mock_load_manifest):
 
 @pytest.mark.asyncio
 @patch(
-    "toolbox_llamaindex_sdk.client._invoke_tool", return_value={"result": "test_result"}
+    "toolbox_langchain_sdk.client._invoke_tool", return_value={"result": "test_result"}
 )
 async def test_generate_tool_invoke(mock_invoke_tool):
     """Test invoking the tool function generated by _generate_tool."""
@@ -268,7 +269,7 @@ async def test_generate_tool_invoke(mock_invoke_tool):
     tool = client._generate_tool("test_tool", ManifestSchema(**manifest_data))
 
     # Call the tool function with some arguments
-    result = await tool.acall(param1="test_value", param2=123)
+    result = await tool.ainvoke({"param1": "test_value", "param2": 123})
 
     # Assert that _invoke_tool was called with the correct parameters
     mock_invoke_tool.assert_called_once_with(
@@ -280,14 +281,7 @@ async def test_generate_tool_invoke(mock_invoke_tool):
     )
 
     # Assert that the result from _invoke_tool is returned
-    response = {"result": "test_result"}
-    expected_result = ToolOutput(
-        content=str(response),
-        tool_name="test_tool",
-        raw_input={"args": (), "kwargs": {"param1": "test_value", "param2": 123}},
-        raw_output=response,
-    )
-    assert result == expected_result
+    assert result == {"result": "test_result"}
 
 
 @pytest.mark.asyncio
@@ -558,9 +552,9 @@ async def test_process_auth_params(
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 @pytest.mark.parametrize(
-    "params, auth_headers, expected_fn_schema_str, expected_tool_param_auth",
+    "params, auth_headers, expected_tool_param_auth",
     [
         (
             [
@@ -568,7 +562,6 @@ async def test_process_auth_params(
                 ParameterSchema(name="param2", type="string", description="Test param"),
             ],
             {},
-            '{"properties": {"param1": {"anyOf": [{"type": "string"}, {"type": "null"}], "description": "Test param", "title": "Param1"}, "param2": {"anyOf": [{"type": "string"}, {"type": "null"}], "description": "Test param", "title": "Param2"}}, "required": ["param1", "param2"], "type": "object"}',
             {},
         ),  # No auth headers
         (
@@ -582,17 +575,12 @@ async def test_process_auth_params(
                 ),
             ],
             {"auth_source1": lambda: "test_token"},
-            '{"properties": {"param1": {"anyOf": [{"type": "string"}, {"type": "null"}], "description": "Test param", "title": "Param1"}}, "required": ["param1"], "type": "object"}',
             {"tool_name": {"param2": ["auth_source1"]}},
         ),  # With auth headers
     ],
 )
 async def test_load_tool(
-    mock_load_manifest,
-    params,
-    auth_headers,
-    expected_fn_schema_str,
-    expected_tool_param_auth,
+    mock_load_manifest, params, auth_headers, expected_tool_param_auth
 ):
     """Test load_tool with and without auth headers."""
     client = ToolboxClient("http://test-url")
@@ -610,14 +598,14 @@ async def test_load_tool(
 
     tool = await client.load_tool("tool_name", auth_headers)
 
-    assert isinstance(tool, FunctionTool)
-    assert tool.metadata.name == "tool_name"
-    assert tool.metadata.fn_schema_str == expected_fn_schema_str
+    assert isinstance(tool, StructuredTool)
+    assert tool.name == "tool_name"
+    assert "param1" in tool.args
     assert client._tool_param_auth == expected_tool_param_auth
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._load_manifest")
+@patch("toolbox_langchain_sdk.client._load_manifest")
 @pytest.mark.parametrize(
     "params, auth_headers, expected_tool_param_auth, expected_num_tools",
     [
@@ -671,12 +659,12 @@ async def test_load_toolset(
 
     assert isinstance(tools, list)
     assert len(tools) == expected_num_tools
-    assert all(isinstance(tool, FunctionTool) for tool in tools)
+    assert all(isinstance(tool, StructuredTool) for tool in tools)
     assert client._tool_param_auth == expected_tool_param_auth
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client._invoke_tool")
+@patch("toolbox_langchain_sdk.client._invoke_tool")
 @pytest.mark.parametrize(
     "manifest, tool_param_auth, id_token_getters, expected_invoke_tool_call",
     [
@@ -759,23 +747,23 @@ async def test_generate_tool(
 
     tool = client._generate_tool("tool_name", manifest)
 
-    assert isinstance(tool, FunctionTool)
-    assert tool.metadata.name == "tool_name"
-    assert tool.metadata.description == "Test tool description"
-    assert (
-        tool.metadata.fn_schema_str
-        == '{"properties": {"param1": {"anyOf": [{"type": "string"}, {"type": "null"}], "description": "Test param", "title": "Param1"}}, "required": ["param1"], "type": "object"}'
-    )
+    assert isinstance(tool, StructuredTool)
+    assert tool.name == "tool_name"
+    assert tool.description == "Test tool description"
+    assert "param1" in tool.args
+    assert tool.args["param1"]["title"] == "Param1"
+    assert tool.args["param1"]["description"] == "Test param"
+    assert tool.args["param1"]["anyOf"] == [{"type": "string"}, {"type": "null"}]
 
     # Call the tool function to check if _invoke_tool is called
     if expected_invoke_tool_call:
-        await tool.acall(param1="test_value")
+        await tool.coroutine(param1="test_value")
         mock_invoke_tool.assert_called_once()
     else:
         with pytest.raises(
             PermissionError, match="Login required before invoking tool_name."
         ):
-            await tool.acall(param1="test_value")
+            await tool.coroutine(param1="test_value")
         mock_invoke_tool.assert_not_called()
 
 
@@ -818,7 +806,7 @@ async def test_del_closes_session_not_running(mock_close):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.asyncio.get_event_loop")
+@patch("toolbox_langchain_sdk.client.asyncio.get_event_loop")
 @patch("aiohttp.ClientSession.close")
 async def test_del_handles_exception(mock_close, mock_get_event_loop):
     """Test that __del__ handles exceptions gracefully."""
@@ -834,7 +822,7 @@ async def test_del_handles_exception(mock_close, mock_get_event_loop):
 
 
 @pytest.mark.asyncio
-@patch("toolbox_llamaindex_sdk.client.asyncio.get_event_loop")
+@patch("toolbox_langchain_sdk.client.asyncio.get_event_loop")
 async def test_del_loop_not_running(mock_get_event_loop):
     """Test that __del__ handles the case where the loop is not running."""
 

@@ -9,6 +9,7 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 <!-- TOC -->
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - [GenAI Toolbox SDK](#genai-toolbox-sdk)
     - [Installation](#installation)
     - [Usage](#usage)
@@ -20,6 +21,8 @@ applications, enabling advanced orchestration and interaction with GenAI models.
         - [Connect Tools with LLM](#connect-tools-with-llm)
     - [Manual usage](#manual-usage)
 =======
+=======
+>>>>>>> 003ce51 (feat(llamaindex-sdk): Implement OAuth support for LlamaIndex. (#159))
 - [Installation](#installation)
 - [Usage](#usage)
 - [Load a toolset](#load-a-toolset)
@@ -34,6 +37,9 @@ applications, enabling advanced orchestration and interaction with GenAI models.
     - [Configuring Tools for Authentication](#configuring-tools-for-authentication)
     - [Configure SDK for Authentication](#configure-sdk-for-authentication)
     - [Complete Example](#complete-example)
+<<<<<<< HEAD
+>>>>>>> 003ce51 (feat(llamaindex-sdk): Implement OAuth support for LlamaIndex. (#159))
+=======
 >>>>>>> 003ce51 (feat(llamaindex-sdk): Implement OAuth support for LlamaIndex. (#159))
 
 <!-- /TOC -->

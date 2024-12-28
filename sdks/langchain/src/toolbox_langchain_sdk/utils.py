@@ -1,7 +1,11 @@
-from typing import Any, Optional, Type, cast
+import json
+import warnings
+from typing import Any, Callable, Optional, Type, cast
+from warnings import warn
 
 import yaml
 from aiohttp import ClientSession
+from deprecated import deprecated
 from pydantic import BaseModel, Field, create_model
 
 
@@ -88,6 +92,29 @@ def _parse_type(type_: str) -> Any:
         raise ValueError(f"Unsupported schema type: {type_}")
 
 
+@deprecated("Please use `_get_auth_tokens` instead.")
+def _get_auth_headers(id_token_getters: dict[str, Callable[[], str]]) -> dict[str, str]:
+    return _get_auth_tokens(id_token_getters)
+
+
+def _get_auth_tokens(id_token_getters: dict[str, Callable[[], str]]) -> dict[str, str]:
+    """
+    Gets id tokens for the given auth sources in the getters map and returns
+    tokens to be included in tool invocation.
+
+    Args:
+        id_token_getters: A dict that maps auth source names to the functions
+        that return its ID token.
+
+    Returns:
+        A dictionary of tokens to be included in the tool invocation.
+    """
+    auth_tokens = {}
+    for auth_source, get_id_token in id_token_getters.items():
+        auth_tokens[f"{auth_source}_token"] = get_id_token()
+    return auth_tokens
+
+
 async def _invoke_tool(
     url: str, session: ClientSession, tool_name: str, data: dict
 ) -> dict:
@@ -104,7 +131,21 @@ async def _invoke_tool(
         A dictionary containing the parsed JSON response from the tool invocation.
     """
     url = f"{url}/api/tool/{tool_name}/invoke"
-    async with session.post(url, json=_convert_none_to_empty_string(data)) as response:
+    auth_tokens = _get_auth_tokens(id_token_getters)
+
+    # ID tokens contain sensitive user information (claims). Transmitting these
+    # over HTTP exposes the data to interception and unauthorized access. Always
+    # use HTTPS to ensure secure communication and protect user privacy.
+    if auth_tokens and not url.startswith("https://"):
+        warn(
+            "Sending ID token over HTTP. User data may be exposed. Use HTTPS for secure communication."
+        )
+
+    async with session.post(
+        url,
+        json=_convert_none_to_empty_string(data),
+        headers=auth_tokens,
+    ) as response:
         response.raise_for_status()
         return await response.json()
 

@@ -183,3 +183,94 @@ You can also execute a tool manually using the `arun` method.
 ```python
 result = await tools[0].arun({ "name": "Alice", "age": 30 })
 ```
+
+## Authenticating Tools
+
+> [!WARNING]
+> Always use HTTPS to connect your application with the Toolbox service,
+> especially when using tools with authentication configured. Using HTTP exposes
+> your application to serious security risks, including unauthorized access to
+> user information and man-in-the-middle attacks, where sensitive data can be
+> intercepted.
+
+Some tools in your Toolbox configuration might require user authentication to
+access sensitive data. This section guides you on how to configure tools for
+authentication and use them with the SDK.
+
+### Supported Authentication Mechanisms
+The Toolbox SDK currently supports authentication using [OIDC
+protocol](https://openid.net/specs/openid-connect-core-1_0.html). Specifically,
+it uses [ID
+tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) and *not*
+access tokens for [Google OAuth
+2.0](https://cloud.google.com/apigee/docs/api-platform/security/oauth/oauth-home).
+
+### Configuring Tools for Authentication
+
+Refer to [these
+instructions](../../docs/tools/README.md#authenticated-parameters) on
+configuring tools for authenticated parameters.
+
+### Configure SDK for Authentication
+
+Provide the `auth_tokens` parameter to the `load_tool` or `load_toolset` calls
+with a dictionary. The keys of this dictionary should match the names of the
+authentication sources configured in your tools file (e.g., `my_auth_service`),
+and the values should be callable functions (e.g., lambdas or regular functions)
+that return the ID token of the logged-in user.
+
+Here's an example:
+
+```py
+def get_auth_token():
+    # ... Logic to retrieve ID token (e.g., from local storage, OAuth flow)
+    # This example just returns a placeholder. Replace with your actual token retrieval.
+    return "YOUR_ID_TOKEN"
+
+toolbox = ToolboxClient("http://localhost:5000")
+
+tools = toolbox.load_toolset(auth_tokens={ "my_auth_service": get_auth_token })
+
+# OR
+
+tool = toolbox.load_tool("my_tool", auth_tokens={ "my_auth_service": get_auth_token })
+```
+
+Alternatively, you can call the `add_auth_token` method to configure
+authentication separately.
+
+```py
+toolbox.add_auth_token("my_auth_service", get_auth_token)
+```
+
+> [!NOTE]
+> Authentication tokens added via `load_tool`, `load_toolset`, or
+> `add_auth_token` apply to all subsequent tool invocations, regardless of when
+> the tool was loaded. This ensures a consistent authentication context.
+
+### Complete Example
+
+```py
+import asyncio
+from toolbox_langchain_sdk import ToolboxClient
+
+async def get_auth_token():
+    # Replace with your actual ID token retrieval logic.
+    # For example, using a library like google-auth
+    # from google.oauth2 import id_token
+    # from google.auth.transport import requests
+    # request = requests.Request()
+    # id_token_string = id_token.fetch_id_token(request, "YOUR_AUDIENCE")# Replace with your audience
+    # return id_token_string
+    return "YOUR_ACTUAL_ID_TOKEN" # placeholder
+
+async def main():
+    toolbox = ToolboxClient("http://localhost:5000")
+    toolbox.add_auth_token("my_auth_service", get_auth_token)
+    tools = await toolbox.load_toolset()
+    result = await tools[0].arun({"input": "some input"})
+    print(result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```

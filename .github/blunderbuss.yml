@@ -1,0 +1,4 @@
+assign_issues:
+  - googleapis/genai-toolbox-llamaindex-python
+assign_prs:
+  - googleapis/genai-toolbox-llamaindex-python

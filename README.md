@@ -39,7 +39,7 @@ pip install toolbox-llamaindex-sdk
 Import and initialize the toolbox client.
 
 ```py
-from toolbox_llamaindex_sdk import ToolboxClient
+from toolbox_llamaindex import ToolboxClient
 
 # Replace with your Toolbox service's URL
 toolbox = ToolboxClient("http://127.0.0.1:5000")
@@ -173,7 +173,7 @@ toolbox.add_auth_token("my_auth_service", get_auth_token)
 
 ```py
 import asyncio
-from toolbox_llamaindex_sdk import ToolboxClient
+from toolbox_llamaindex import ToolboxClient
 
 async def get_auth_token():
     # Replace with your actual ID token retrieval logic.

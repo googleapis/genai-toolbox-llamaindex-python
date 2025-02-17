@@ -1,194 +1,197 @@
-# Toolbox LLamaIndex SDK
+# GenAI Toolbox SDK
 
 This SDK allows you to seamlessly integrate the functionalities of
 [Toolbox](https://github.com/googleapis/genai-toolbox) into your LLM
 applications, enabling advanced orchestration and interaction with GenAI models.
 
+<!-- TOC ignore:true -->
 ## Table of Contents
+<!-- TOC -->
 
-## Getting Started
+- [Installation](#installation)
+- [Usage](#usage)
+- [Load a toolset](#load-a-toolset)
+- [Load a single tool](#load-a-single-tool)
+- [Use with LlamaIndex](#use-with-llamaindex)
+- [Manual usage](#manual-usage)
+- [Authenticating Tools](#authenticating-tools)
+    - [Supported Authentication Mechanisms](#supported-authentication-mechanisms)
+    - [Configuring Tools for Authentication](#configuring-tools-for-authentication)
+    - [Configure SDK for Authentication](#configure-sdk-for-authentication)
+    - [Complete Example](#complete-example)
 
-### Installing the server
-<!-- {x-release-please-start-version} -->
-For the latest version, check the [releases page][releases] and use the
-following instructions for your OS and CPU architecture.
+<!-- /TOC -->
 
-<details open>
-<summary>Binary</summary>
+## Installation
 
+> [!IMPORTANT]
+> This SDK is not yet available on PyPI. For now, install it from source by
+> following these [installation instructions](DEVELOPER.md).
 
-[releases]: https://github.com/googleapis/genai-toolbox/releases
+You can install the Toolbox SDK for LlamaIndex using `pip`.
 
-```sh
-# see releases page for other versions
-curl https://storage.googleapis.com/genai-toolbox/v0.0.1/linux/amd64/toolbox
-chmod +x toolbox
+```bash
+pip install toolbox-llamaindex-sdk
 ```
 
-</details>
+## Usage
 
-<details>
-<summary>Container Images</summary>
-You can also install Toolbox as a container: 
+Import and initialize the toolbox client.
 
-```sh
-# see releases page for other versions
-docker pull us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:$VERSION
-```
-</details>
-
-<details>
-<summary>Compile from source</summary>
-
-To install from source, ensure you have the latest version of 
-[Go installed](https://go.dev/doc/install).
-
-```sh
-go install github.com/googleapis/genai-toolbox@v0.0.1
-```
-</details>
-<!-- {x-release-please-end} -->
-
-### Running the server
-[Configure](#configuration) a `tools.yaml` to define your tools, and then execute `toolbox` to
-start the server:
-
-```sh
-./toolbox --tools_file "tools.yaml"
-```
-
-You can use `toolbox help` for a full list of flags! 
-
-### Using with Client SDKs
-
-Once your server is up and running, you can load the tools into your
-application. See below the list of Client SDKs for using various frameworks:
-
-<details open>
-<summary>LangChain / LangGraph</summary>
-Once you've installed the Toolbox LangChain SDK, you can load tools: 
-
-```python
-from toolbox_langchain_sdk import ToolboxClient
-
-# update the url to point to your server
-client = ToolboxClient("http://127.0.0.1:5000")
-
-# these tools can be passed to your application! 
-tools = await client.load_toolset()
-```
-
-</details>
-
-<details open>
-
-<summary>LlamaIndex</summary>
-Once you've installed the Toolbox LlamaIndex SDK, you can load tools: 
-
-```python
+```py
 from toolbox_llamaindex_sdk import ToolboxClient
 
-# update the url to point to your server
-client = ToolboxClient("http://127.0.0.1:5000")
-
-# these tools can be passed to your application! 
-tools = await client.load_toolset()
+# Replace with your Toolbox service's URL
+toolbox = ToolboxClient("http://127.0.0.1:5000")
 ```
 
-</details>
+> [!IMPORTANT]
+> The toolbox client requires an asynchronous environment.
+> For guidance on running asynchronous Python programs, see
+> [running an async program in python](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program).
 
-## Configuration
+> [!TIP]
+> You can also pass your own `ClientSession` so that the `ToolboxClient` can
+> reuse the same session.
+> ```py
+> async with ClientSession() as session:
+>   toolbox = ToolboxClient("http://localhost:5000", session)
+> ```
 
-You can configure what tools are available by updating the `tools.yaml` file. If
-you have multiple files, you can tell toolbox which to load with the
-`--tools_file tools.yaml` flag. 
+## Load a toolset
 
-### Sources
+You can load a toolset, a collection of related tools.
 
-The `sources` section of your `tools.yaml` defines what data sources your
-Toolbox should have access to. Most tools will have at least one source to
-execute against.
+```py
+# Load all tools
+tools = await toolbox.load_toolset()
 
-```yaml
-sources:
-    my-cloud-sql-source:
-        kind: cloud-sql-postgres
-        project: my-project-name
-        region: us-central1
-        instance: my-instance-name
-        user: my-user
-        password: my-password
-        database: my_db
+# Load a specific toolset
+tools = await toolbox.load_toolset("my-toolset")
 ```
 
-For more details on configuring different types of sources, see the [Source
-documentation.](docs/sources/README.md)
+## Load a single tool
 
+You can also load a single tool.
 
-### Tools
-
-The `tools` section of your `tools.yaml` define your tools: what kind of tool it
-is, which source it affects, what parameters it takes, etc. 
-
-```yaml
-tools:
-    get_flight_by_id:
-        kind: postgres-sql
-        source: my-pg-instance
-        description: >
-            Use this tool to list all airports matching search criteria. Takes 
-            at least one of country, city, name, or all and returns all matching
-            airports. The agent can decide to return the results directly to 
-            the user.
-        statement: "SELECT * FROM flights WHERE id = $1"
-        parameters:
-        - name: id
-            type: int
-            description: 'id' represents the unique ID for each flight. 
+```py
+tool = await toolbox.load_tool("my-tool")
 ```
 
+## Use with LlamaIndex
 
-### Toolsets
+LlamaIndex agents can dynamically choose and execute tools based on the user
+input. The user can include the tools loaded from the Toolbox SDK in the agent's
+toolkit.
 
-The `toolsets` section of your `tools.yaml` allows you to define groups of tools
-that you want to be able to load together. This can be useful for defining
-different groups based on agent or application. 
+```py
+from llama_index.llms.vertex import Vertex
+from llama_index.core.agent import ReActAgent
 
-```yaml
-toolsets:
-    my_first_toolset:
-        - my_first_tool
-        - my_second_tool
-    my_second_toolset:
-        - my_second_tool
-        - my_third_tool
+model = Vertex(model="gemini-1.5-flash")
+
+# Initialize agent with tools
+agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
+
+# Query the agent
+response = agent.query("Get some response from the agent.")
 ```
 
-You can load toolsets by name:
-```python
-# This will load all tools
-all_tools = await client.load_toolset()
+## Manual usage
 
-# This will only load the tools listed in 'my_second_toolset'
-my_second_toolset = await client.load_toolset("my_second_toolset")
+You can also execute a tool manually using the `acall` method.
+
+```py
+result = await tools[0].acall({ "name": "Alice", "age": 30 })
 ```
 
+## Authenticating Tools
 
-## Versioning
+> [!WARNING]
+> Always use HTTPS to connect your application with the Toolbox service,
+> especially when using tools with authentication configured. Using HTTP exposes
+> your application to serious security risks, including unauthorized access to
+> user information and man-in-the-middle attacks, where sensitive data can be
+> intercepted.
 
-This project uses [semantic versioning](https://semver.org/), and uses the
-following lifecycle regarding support for a major version.
+Some tools in your Toolbox configuration might require user authentication to
+access sensitive data. This section guides you on how to configure tools for
+authentication and use them with the SDK.
 
-## Contributing
+### Supported Authentication Mechanisms
+The Toolbox SDK currently supports authentication using [OIDC
+protocol](https://openid.net/specs/openid-connect-core-1_0.html). Specifically,
+it uses [ID
+tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) and *not*
+access tokens for [Google OAuth
+2.0](https://cloud.google.com/apigee/docs/api-platform/security/oauth/oauth-home).
 
-Contributions to this library are always welcome and highly encouraged.
+### Configuring Tools for Authentication
 
-See [CONTRIBUTING](CONTRIBUTING.md) for more information how to get started.
+Refer to [these
+instructions](../../docs/tools/README.md#authenticated-parameters) on
+configuring tools for authenticated parameters.
 
-Please note that this project is released with a Contributor Code of Conduct. By participating in
-this project you agree to abide by its terms. See [Code of Conduct](CODE_OF_CONDUCT.md) for more
-information.
+### Configure SDK for Authentication
 
-## License
+Provide the `auth_tokens` parameter to the `load_tool` or `load_toolset` calls
+with a dictionary. The keys of this dictionary should match the names of the
+authentication sources configured in your tools file (e.g., `my_auth_service`),
+and the values should be callable functions (e.g., lambdas or regular functions)
+that return the ID token of the logged-in user.
 
-Apache 2.0 - See [LICENSE](LICENSE) for more information.
+Here's an example:
+
+```py
+def get_auth_token():
+    # ... Logic to retrieve ID token (e.g., from local storage, OAuth flow)
+    # This example just returns a placeholder. Replace with your actual token retrieval.
+    return "YOUR_ID_TOKEN"
+
+toolbox = ToolboxClient("http://localhost:5000")
+
+tools = toolbox.load_toolset(auth_tokens={ "my_auth_service": get_auth_token })
+
+# OR
+
+tool = toolbox.load_tool("my_tool", auth_tokens={ "my_auth_service": get_auth_token })
+```
+
+Alternatively, you can call the `add_auth_token` method to configure
+authentication separately.
+
+```py
+toolbox.add_auth_token("my_auth_service", get_auth_token)
+```
+
+> [!NOTE]
+> Authentication tokens added via `load_tool`, `load_toolset`, or
+> `add_auth_token` apply to all subsequent tool invocations, regardless of when
+> the tool was loaded. This ensures a consistent authentication context.
+
+### Complete Example
+
+```py
+import asyncio
+from toolbox_llamaindex_sdk import ToolboxClient
+
+async def get_auth_token():
+    # Replace with your actual ID token retrieval logic.
+    # For example, using a library like google-auth
+    # from google.oauth2 import id_token
+    # from google.auth.transport import requests
+    # request = requests.Request()
+    # id_token_string = id_token.fetch_id_token(request, "YOUR_AUDIENCE")# Replace with your audience
+    # return id_token_string
+    return "YOUR_ACTUAL_ID_TOKEN" # placeholder
+
+async def main():
+    toolbox = ToolboxClient("http://localhost:5000")
+    toolbox.add_auth_token("my_auth_service", get_auth_token)
+    tools = await toolbox.load_toolset()
+    result = await tools[0].acall({"input": "some input"})
+    print(result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```

@@ -22,7 +22,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import aiohttp
 import pytest
 from pydantic import BaseModel
-
 from toolbox_llamaindex.utils import (
     ParameterSchema,
     _convert_none_to_empty_string,

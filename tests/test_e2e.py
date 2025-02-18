@@ -35,7 +35,7 @@ import pytest
 import pytest_asyncio
 from aiohttp import ClientResponseError
 
-from toolbox_llamaindex_sdk.client import ToolboxClient
+from toolbox_llamaindex.client import ToolboxClient
 
 
 @pytest.mark.asyncio

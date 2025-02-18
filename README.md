@@ -31,7 +31,7 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 You can install the Toolbox SDK for LlamaIndex using `pip`.
 
 ```bash
-pip install toolbox-llamaindex-sdk
+pip install toolbox-llamaindex
 ```
 
 ## Usage

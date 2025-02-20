@@ -77,4 +77,4 @@ jobs:
       - name: Run type-check
         env:
           MYPYPATH: './src'
-        run: mypy --install-types --non-interactive --cache-dir=.mypy_cache/ .
+        run: mypy --install-types --non-interactive --cache-dir=.mypy_cache/ -p toolbox_llamaindex

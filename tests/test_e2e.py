@@ -34,6 +34,7 @@ This file covers the following use cases:
 import pytest
 import pytest_asyncio
 from aiohttp import ClientResponseError
+
 from toolbox_llamaindex.client import ToolboxClient
 
 

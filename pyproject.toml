@@ -1,5 +1,5 @@
 [project]
-name = "toolbox-llamaindex-sdk"
+name = "toolbox-llamaindex"
 version="0.0.1"
 description = "Python SDK for interacting with the Toolbox service with LlamaIndex"
 license = {file = "LICENSE"}

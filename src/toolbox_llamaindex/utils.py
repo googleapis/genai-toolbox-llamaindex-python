@@ -25,7 +25,6 @@ class ParameterSchema(BaseModel):
     """
     Schema for a tool parameter.
     """
-
     name: str
     type: str
     description: str
@@ -37,7 +36,6 @@ class ToolSchema(BaseModel):
     """
     Schema for a tool.
     """
-
     description: str
     parameters: list[ParameterSchema]
 
@@ -46,7 +44,6 @@ class ManifestSchema(BaseModel):
     """
     Schema for the Toolbox manifest.
     """
-
     serverVersion: str
     tools: dict[str, ToolSchema]
 
@@ -228,7 +225,6 @@ def _convert_none_to_empty_string(input_dict):
         else:
             new_dict[key] = value
     return new_dict
-
 
 def _find_auth_params(
     params: list[ParameterSchema],

@@ -290,6 +290,7 @@ async def test_toolbox_client_load_tool_with_bound_params(
 @patch("toolbox_llamaindex.client._load_manifest")
 async def test_toolbox_client_load_toolset(
     mock_load_manifest, toolbox_client, manifest_schema
+
 ):
     mock_load_manifest.return_value = manifest_schema
     for client in toolbox_client:

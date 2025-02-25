@@ -112,10 +112,8 @@ class TestE2EClient:
         tool = await toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        # TODO: Fix error message (b/389577313)
-        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
-            await auth_tool.acall(id="2")
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
+            await tool.acall(id="2")
 
     @pytest.mark.asyncio
     async def test_run_tool_auth(self, toolbox, auth_token1):

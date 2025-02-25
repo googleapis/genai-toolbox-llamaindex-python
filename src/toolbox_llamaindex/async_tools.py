@@ -29,41 +29,6 @@ from toolbox_llamaindex.utils import (
 T = TypeVar("T")
 
 
-def _parse_input(self, tool_input: Union[str, dict]) -> Union[str, dict[str, Any]]:
-    """Convert tool input to a pydantic model.
-
-    Args:
-        tool_input: The input to the tool.
-    """
-    input_args = self.args_schema
-    if isinstance(tool_input, str):
-        if input_args is not None:
-            key_ = next(iter(get_fields(input_args).keys()))
-            if hasattr(input_args, "model_validate"):
-                input_args.model_validate({key_: tool_input})
-            else:
-                input_args.parse_obj({key_: tool_input})
-        return tool_input
-    else:
-        if input_args is not None:
-            if issubclass(input_args, BaseModel):
-                result = input_args.model_validate(tool_input)
-                result_dict = result.model_dump()
-            elif issubclass(input_args, BaseModelV1):
-                result = input_args.parse_obj(tool_input)
-                result_dict = result.dict()
-            else:
-                msg = (
-                    "args_schema must be a Pydantic BaseModel, "
-                    f"got {self.args_schema}"
-                )
-                raise NotImplementedError(msg)
-            return {
-                k: getattr(result, k) for k, v in result_dict.items() if k in tool_input
-            }
-        return tool_input
-
-
 # This class is an internal implementation detail and is not exposed to the
 # end-user. It should not be used directly by external code. Changes to this
 # class will not be considered breaking changes to the public API.

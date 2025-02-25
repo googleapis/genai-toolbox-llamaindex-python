@@ -112,8 +112,7 @@ class TestE2EClient:
         tool = await toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        # TODO: Fix error message (b/389577313)
-        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
             await tool.acall(id="2")
 
     @pytest.mark.asyncio

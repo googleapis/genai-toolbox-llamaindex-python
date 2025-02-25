@@ -78,4 +78,3 @@ jobs:
         env:
           MYPYPATH: './src'
         run: mypy --install-types --non-interactive --cache-dir=.mypy_cache/ -p toolbox_llamaindex
-        

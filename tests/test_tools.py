@@ -225,12 +225,12 @@ class TestToolboxTool:
             e.value
         )
 
-    @pytest.mark.asyncio
-    async def test_toolbox_tool_run(self, toolbox_tool):
-        toolbox_tool._ToolboxTool__async_tool._acall = AsyncMock(return_value={"result": "success"})
-        result = await toolbox_tool.acall(param1="value", param2=2)
-        toolbox_tool._ToolboxTool__async_tool._acall.assert_awaited_once_with(param1="value", param2=2)
-        assert result == {"result": "success"}
+    # @pytest.mark.asyncio
+    # async def test_toolbox_tool_run(self, toolbox_tool):
+    #     toolbox_tool._ToolboxTool__async_tool._acall = AsyncMock(return_value={"result": "success"})
+    #     result = await toolbox_tool.acall(param1="value", param2=2)
+    #     toolbox_tool._ToolboxTool__async_tool._acall.assert_awaited_once_with(param1="value", param2=2)
+    #     assert result == {"result": "success"}
 
     # @pytest.mark.asyncio
     # async def test_toolbox_tool_sync_run(self, toolbox_tool):

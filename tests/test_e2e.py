@@ -66,7 +66,7 @@ class TestE2EClientAsync:
         ],
     )
     async def test_aload_toolset_specific(
-        self, toolbox, toolset_name, expected_length, expected_tools
+            self, toolbox, toolset_name, expected_length, expected_tools
     ):
         toolset = await toolbox.aload_toolset(toolset_name)
         assert len(toolset) == expected_length
@@ -127,8 +127,10 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-id-auth",
         )
-        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
-            await tool.acall({"id": "2"})
+        response = await tool.acall({"id": "2"})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "401, message='Unauthorized'" in response.content
 
     async def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -151,11 +153,11 @@ class TestE2EClientAsync:
         assert "row2" in response.content
 
     async def test_run_tool_param_auth_no_auth(self, toolbox):
-        """Tests running a tool with a param requiring auth, without auth."""
+        """Tests runningP a tool with a param requiring auth, without auth."""
         tool = await toolbox.aload_tool("get-row-by-email-auth")
         with pytest.raises(
-            PermissionError,
-            match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
+                PermissionError,
+                match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
             await tool.acall({"email": ""})
 
@@ -175,8 +177,10 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
-            await tool.acall({})
+        response = await tool.acall({})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "400, message='Bad Request'" in response.content
 
 
 @pytest.mark.usefixtures("toolbox_server")
@@ -202,7 +206,7 @@ class TestE2EClientSync:
         ],
     )
     def test_load_toolset_specific(
-        self, toolbox, toolset_name, expected_length, expected_tools
+            self, toolbox, toolset_name, expected_length, expected_tools
     ):
         toolset = toolbox.load_toolset(toolset_name)
         assert len(toolset) == expected_length
@@ -263,8 +267,10 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
-            tool.call({"id": "2"})
+        response = tool.call({"id": "2"})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "401, message='Unauthorized'" in response.content
 
     def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -272,8 +278,10 @@ class TestE2EClientSync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
-            auth_tool.call({"id": "2"})
+        response = auth_tool.call({"id": "2"})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "401, message='Unauthorized'" in response.content
 
     def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""
@@ -288,8 +296,8 @@ class TestE2EClientSync:
         """Tests running a tool with a param requiring auth, without auth."""
         tool = toolbox.load_tool("get-row-by-email-auth")
         with pytest.raises(
-            PermissionError,
-            match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
+                PermissionError,
+                match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
             tool.call({"email": ""})
 
@@ -309,5 +317,7 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
-            tool.call({})
+        response = tool.call({})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "400, message='Bad Request'" in response.content

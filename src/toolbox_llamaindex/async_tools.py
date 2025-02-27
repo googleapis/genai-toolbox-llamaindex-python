@@ -154,15 +154,15 @@ class AsyncToolboxTool(AsyncBaseTool):
             ),
         )
 
-    def call(self, **kwargs: Any) -> ToolOutput:
+    def call(self, input: Any) -> ToolOutput:
         raise NotImplementedError("Synchronous methods not supported by async tools.")
 
-    async def acall(self, **kwargs: Any) -> ToolOutput:
+    async def acall(self, input: Any) -> ToolOutput:
         """
         The coroutine that invokes the tool with the given arguments.
 
         Args:
-            kwargs: The arguments to the tool.
+            input: The arguments to the tool.
 
         Returns:
             A dictionary containing the parsed JSON response from the tool
@@ -172,7 +172,7 @@ class AsyncToolboxTool(AsyncBaseTool):
         input_args = _schema_to_model(
             model_name=self.__name, schema=self.__schema.parameters
         )
-        input_args.model_validate(kwargs)
+        input_args.model_validate(input)
 
         # If the tool had parameters that require authentication, then right
         # before invoking that tool, we check whether all these required
@@ -188,15 +188,15 @@ class AsyncToolboxTool(AsyncBaseTool):
                 evaluated_params[param_name] = param_value
 
         # Merge bound parameters with the provided arguments
-        kwargs.update(evaluated_params)
+        input.update(evaluated_params)
         try:
             response = await _invoke_tool(
-                self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
+                self.__url, self.__session, self.__name, input, self.__auth_tokens
             )
             return ToolOutput(
                 content=str(response),
                 tool_name=self.__name,
-                raw_input=kwargs,
+                raw_input=input,
                 raw_output=response,
                 is_error=False,
             )
@@ -204,7 +204,7 @@ class AsyncToolboxTool(AsyncBaseTool):
             return ToolOutput(
                 content=str(e),
                 tool_name=self.__name,
-                raw_input=kwargs,
+                raw_input=input,
                 raw_output=None,
                 is_error=True,
             )

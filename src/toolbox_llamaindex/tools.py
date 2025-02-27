@@ -18,18 +18,18 @@ from threading import Thread
 from typing import Any, Awaitable, Callable, TypeVar, Union
 
 from llama_index.core.tools import FunctionTool, ToolMetadata
+from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
 from .async_tools import AsyncToolboxTool
 
 T = TypeVar("T")
 
 
-class ToolboxTool(FunctionTool):
+class ToolboxTool(AsyncBaseTool):
     """
     A subclass of LlamaIndex's FunctionTool that supports features specific to
     Toolbox, like bound parameters and authenticated tools.
     """
-
     def __init__(
         self,
         async_tool: AsyncToolboxTool,
@@ -46,15 +46,7 @@ class ToolboxTool(FunctionTool):
         """
         # Due to how pydantic works, we must initialize the underlying
         # FunctionTool class before assigning values to member variables.
-        super().__init__(
-            fn=self._run,
-            async_fn=self._arun,
-            metadata=ToolMetadata(
-                name=async_tool.metadata.name,
-                description=async_tool.metadata.description,
-                fn_schema=async_tool.metadata.fn_schema,
-            ),
-        )
+        super().__init__()
 
         self.__async_tool = async_tool
         self.__loop = loop
@@ -80,13 +72,22 @@ class ToolboxTool(FunctionTool):
             asyncio.run_coroutine_threadsafe(coro, self.__loop)
         )
 
-    def _run(self, **kwargs: Any) -> dict[str, Any]:
-        print("DEBUG: In the call function")
-        return self.__run_as_sync(self.__async_tool._acall(**kwargs))
+    @property
+    def metadata(self) -> ToolMetadata:
+        async_tool = self.__async_tool
+        return ToolMetadata(
+                name=async_tool.metadata.name,
+                description=async_tool.metadata.description,
+                fn_schema=async_tool.metadata.fn_schema,
+        )
 
-    async def _arun(self, **kwargs: Any) -> dict[str, Any]:
-        print("DEBUG: In the call function")
-        return await self.__run_as_async(self.__async_tool._acall(**kwargs))
+    def call(self, **kwargs: Any) -> ToolOutput:
+        if not isinstance(input, dict):
+            raise ValueError("Input must be a dictionary.")
+        return self.__run_as_sync(self.__async_tool.acall(**kwargs))
+
+    async def acall(self, **kwargs: Any) -> ToolOutput:
+        return await self.__run_as_async(self.__async_tool.acall(**kwargs))
 
     def add_auth_tokens(
         self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True
@@ -186,8 +187,8 @@ class ToolboxTool(FunctionTool):
         parameter.
 
         Args:
-            param_name: The name of the bound parameter. param_value: The value
-            of the bound parameter, or a callable that
+            param_name: The name of the bound parameter.
+            param_value: The value of the bound parameter, or a callable that
                 returns the value.
             strict: If True, a ValueError is raised if any of the provided bound
                 params is not defined in the tool's schema, or requires

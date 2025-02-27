@@ -25,30 +25,28 @@ from toolbox_llamaindex.utils import ParameterSchema, ToolSchema
 class TestToolboxTool:
     @pytest.fixture
     def tool_schema(self):
-        return ToolSchema(
-            description="Test Tool Description",
-            name="test_tool",
-            parameters=[
-                ParameterSchema(name="param1", type="string", description="Param 1"),
-                ParameterSchema(name="param2", type="integer", description="Param 2"),
+        return {
+            "description": "Test Tool Description",
+            "parameters": [
+                {"name": "param1", "type": "string", "description": "Param 1"},
+                {"name": "param2", "type": "integer", "description": "Param 2"},
             ],
-        )
+        }
 
     @pytest.fixture
     def auth_tool_schema(self):
-        return ToolSchema(
-            description="Test Tool Description",
-            name="test_tool",
-            parameters=[
-                ParameterSchema(
-                    name="param1",
-                    type="string",
-                    description="Param 1",
-                    authSources=["test-auth-source"],
-                ),
-                ParameterSchema(name="param2", type="integer", description="Param 2"),
+        return {
+            "description": "Test Tool Description",
+            "parameters": [
+                {
+                    "name": "param1",
+                    "type": "string",
+                    "description": "Param 1",
+                    "authSources": ["test-auth-source"],
+                },
+                {"name": "param2", "type": "integer", "description": "Param 2"},
             ],
-        )
+        }
 
     @pytest.fixture(scope="function")
     def mock_async_tool(self, tool_schema):
@@ -215,7 +213,7 @@ class TestToolboxTool:
 
     @pytest.mark.asyncio
     async def test_toolbox_tool_validate_auth_strict(self, auth_toolbox_tool):
-        auth_toolbox_tool._ToolboxTool__async_tool._acall = Mock(
+        auth_toolbox_tool._ToolboxTool__async_tool.acall = Mock(
             side_effect=PermissionError(
                 "Parameter(s) `param1` of tool test_tool require authentication"
             )
@@ -226,18 +224,19 @@ class TestToolboxTool:
             e.value
         )
 
+    # # TODO: Fix these
     # @pytest.mark.asyncio
     # async def test_toolbox_tool_run(self, toolbox_tool):
-    #     toolbox_tool._ToolboxTool__async_tool._acall = AsyncMock(return_value={"result": "success"})
+    #     toolbox_tool._ToolboxTool__async_tool.acall = AsyncMock(return_value={"result": "success"})
     #     result = await toolbox_tool.acall(param1="value", param2=2)
-    #     toolbox_tool._ToolboxTool__async_tool._acall.assert_awaited_once_with(param1="value", param2=2)
+    #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value", param2=2)
     #     assert result == {"result": "success"}
-
+    #
     # @pytest.mark.asyncio
     # async def test_toolbox_tool_sync_run(self, toolbox_tool):
-    #     toolbox_tool._ToolboxTool__async_tool.async_fn = AsyncMock(return_value={"result": "success"})
+    #     toolbox_tool._ToolboxTool__async_tool.acall = AsyncMock(return_value={"result": "success"})
     #     print("DEBUG: Before calling the tool")
-    #     result = toolbox_tool._run(param1 = "value1", param2 = 3)
+    #     result = toolbox_tool.call(param1 = "value1", param2 = 3)
     #     assert 0 == 1
-    #     toolbox_tool._ToolboxTool__async_tool._acall.assert_awaited_once_with(param1="value1", param2=3)
+    #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value1", param2=3)
     #     assert result == {"result": "sync success"}

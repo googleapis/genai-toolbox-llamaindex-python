@@ -205,7 +205,7 @@ class AsyncToolboxTool(AsyncBaseTool):
                 content=str(e),
                 tool_name=self.__name,
                 raw_input=input,
-                raw_output=None,
+                raw_output=e,
                 is_error=True,
             )
 

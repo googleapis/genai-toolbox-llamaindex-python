@@ -16,7 +16,7 @@ from copy import deepcopy
 from typing import Any, Callable, TypeVar, Union
 from warnings import warn
 
-from aiohttp import ClientSession, ClientResponseError
+from aiohttp import ClientResponseError, ClientSession
 from llama_index.core.tools import ToolMetadata
 from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 

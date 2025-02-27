@@ -15,8 +15,8 @@
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from pydantic import ValidationError
 import pytest_asyncio
+from pydantic import ValidationError
 
 from toolbox_llamaindex.async_tools import AsyncToolboxTool
 

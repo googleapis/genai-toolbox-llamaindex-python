@@ -136,8 +136,10 @@ class TestE2EClientAsync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
-            await auth_tool.acall({"id": "2"})
+        response = await auth_tool.acall({"id": "2"})
+        assert response.is_error == True
+        assert response.raw_output is None
+        assert "401 Client Error" in response.content
 
     async def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""

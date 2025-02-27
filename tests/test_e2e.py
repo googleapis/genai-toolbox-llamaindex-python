@@ -66,7 +66,7 @@ class TestE2EClientAsync:
         ],
     )
     async def test_aload_toolset_specific(
-            self, toolbox, toolset_name, expected_length, expected_tools
+        self, toolbox, toolset_name, expected_length, expected_tools
     ):
         toolset = await toolbox.aload_toolset(toolset_name)
         assert len(toolset) == expected_length
@@ -156,8 +156,8 @@ class TestE2EClientAsync:
         """Tests runningP a tool with a param requiring auth, without auth."""
         tool = await toolbox.aload_tool("get-row-by-email-auth")
         with pytest.raises(
-                PermissionError,
-                match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
+            PermissionError,
+            match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
             await tool.acall({"email": ""})
 
@@ -206,7 +206,7 @@ class TestE2EClientSync:
         ],
     )
     def test_load_toolset_specific(
-            self, toolbox, toolset_name, expected_length, expected_tools
+        self, toolbox, toolset_name, expected_length, expected_tools
     ):
         toolset = toolbox.load_toolset(toolset_name)
         assert len(toolset) == expected_length
@@ -296,8 +296,8 @@ class TestE2EClientSync:
         """Tests running a tool with a param requiring auth, without auth."""
         tool = toolbox.load_tool("get-row-by-email-auth")
         with pytest.raises(
-                PermissionError,
-                match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
+            PermissionError,
+            match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
             tool.call({"email": ""})
 

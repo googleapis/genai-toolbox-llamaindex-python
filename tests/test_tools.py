@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 
 import pytest
 from pydantic import BaseModel
 
 from toolbox_llamaindex.async_tools import AsyncToolboxTool
 from toolbox_llamaindex.tools import ToolboxTool
-from toolbox_llamaindex.utils import ParameterSchema, ToolSchema
-
 
 class TestToolboxTool:
     @pytest.fixture
@@ -219,7 +217,7 @@ class TestToolboxTool:
             )
         )
         with pytest.raises(PermissionError) as e:
-            await auth_toolbox_tool.acall()
+            await auth_toolbox_tool.acall({})
         assert "Parameter(s) `param1` of tool test_tool require authentication" in str(
             e.value
         )

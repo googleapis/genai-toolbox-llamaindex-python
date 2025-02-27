@@ -195,7 +195,7 @@ class TestAsyncToolboxTool:
         )
 
     async def test_toolbox_tool_call(self, toolbox_tool):
-        result = await toolbox_tool.acall(param1="test-value", param2=123)
+        result = await toolbox_tool.acall({"param1": "test-value", "param2": 123})
         assert result.content == str({"result": "test-result"})
         toolbox_tool._AsyncToolboxTool__session.post.assert_called_once_with(
             "http://test_url/api/tool/test_tool/invoke",
@@ -214,7 +214,7 @@ class TestAsyncToolboxTool:
         self, toolbox_tool, bound_param, expected_value
     ):
         tool = toolbox_tool.bind_params(bound_param)
-        result = await tool.acall(param2=123)
+        result = await tool.acall({"param2": 123})
         assert result.content == str({"result": "test-result"})
         toolbox_tool._AsyncToolboxTool__session.post.assert_called_once_with(
             "http://test_url/api/tool/test_tool/invoke",
@@ -226,7 +226,7 @@ class TestAsyncToolboxTool:
         tool = auth_toolbox_tool.add_auth_tokens(
             {"test-auth-source": lambda: "test-token"}
         )
-        result = await tool.acall(param2=123)
+        result = await tool.acall({"param2": 123})
         assert result.content == str({"result": "test-result"})
         auth_toolbox_tool._AsyncToolboxTool__session.post.assert_called_once_with(
             "https://test-url/api/tool/test_tool/invoke",
@@ -243,7 +243,7 @@ class TestAsyncToolboxTool:
             tool = auth_toolbox_tool.add_auth_tokens(
                 {"test-auth-source": lambda: "test-token"}
             )
-            result = await tool.acall(param2=123)
+            result = await tool.acall({"param2": 123})
             assert result.content == str({"result": "test-result"})
             auth_toolbox_tool._AsyncToolboxTool__session.post.assert_called_once_with(
                 "http://test-url/api/tool/test_tool/invoke",
@@ -253,18 +253,18 @@ class TestAsyncToolboxTool:
 
     async def test_toolbox_tool_call_with_invalid_input(self, toolbox_tool):
         with pytest.raises(ValidationError) as e:
-            await toolbox_tool.acall(param1=123, param2="invalid")
+            await toolbox_tool.acall({"param1":123, "param2":"invalid"})
         assert "2 validation errors for test_tool" in str(e.value)
         assert "param1\n  Input should be a valid string" in str(e.value)
         assert "param2\n  Input should be a valid integer" in str(e.value)
 
     async def test_toolbox_tool_call_with_empty_input(self, toolbox_tool):
         with pytest.raises(ValidationError) as e:
-            await toolbox_tool.acall()
+            await toolbox_tool.acall({})
         assert "2 validation errors for test_tool" in str(e.value)
         assert "param1\n  Field required" in str(e.value)
         assert "param2\n  Field required" in str(e.value)
 
     async def test_toolbox_tool_run_not_implemented(self, toolbox_tool):
         with pytest.raises(NotImplementedError):
-            toolbox_tool.call()
+            toolbox_tool.call({})

@@ -19,8 +19,8 @@ from pydantic import BaseModel
 
 from toolbox_llamaindex.async_tools import AsyncToolboxTool
 from toolbox_llamaindex.client import ToolboxClient
-from toolbox_llamaindex.utils import _schema_to_model
 from toolbox_llamaindex.tools import ToolboxTool
+from toolbox_llamaindex.utils import _schema_to_model
 
 URL = "http://test_url"
 
@@ -50,22 +50,34 @@ class TestToolboxClient:
 
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_tool")
-    def test_load_tool(self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    def test_load_tool(
+        self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool = Mock(spec=AsyncToolboxTool)
         mock_async_tool._AsyncToolboxTool__name = "mock-tool"  # Access the mangled name
-        mock_async_tool._AsyncToolboxTool__schema = tool_schema  # Access the mangled name
+        mock_async_tool._AsyncToolboxTool__schema = (
+            tool_schema  # Access the mangled name
+        )
         mock_aload_tool.return_value = mock_async_tool
 
         tool = toolbox_client.load_tool("test_tool")
-        mock_toolbox_tool_init.assert_called_once_with(mock_async_tool, toolbox_client._ToolboxClient__loop,
-                                                       toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_called_once_with(
+            mock_async_tool,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
-        assert tool_schema["description"] == mock_async_tool._AsyncToolboxTool__schema["description"]
+        assert (
+            tool_schema["description"]
+            == mock_async_tool._AsyncToolboxTool__schema["description"]
+        )
         mock_aload_tool.assert_called_once_with("test_tool", {}, None, {}, True)
 
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_toolset")
-    def test_load_toolset(self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    def test_load_toolset(
+        self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool1 = Mock(spec=AsyncToolboxTool)
         mock_async_tool1._AsyncToolboxTool__name = "mock-tool-0"
         mock_async_tool1._AsyncToolboxTool__schema = tool_schema
@@ -77,33 +89,49 @@ class TestToolboxClient:
 
         tools = toolbox_client.load_toolset()
         assert len(tools) == 2
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool1, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool2, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool1,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool2,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
         mock_aload_toolset.assert_called_once_with(None, {}, None, {}, True)
 
     @pytest.mark.asyncio
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_tool")
-    async def test_aload_tool(self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    async def test_aload_tool(
+        self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool = Mock(spec=AsyncToolboxTool)
         mock_async_tool._AsyncToolboxTool__name = "mock-tool"  # Access mangled name
         mock_async_tool._AsyncToolboxTool__schema = tool_schema
         mock_aload_tool.return_value = mock_async_tool
 
         tool = await toolbox_client.aload_tool("test_tool")
-        mock_toolbox_tool_init.assert_called_once_with(mock_async_tool, toolbox_client._ToolboxClient__loop,
-                                                       toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_called_once_with(
+            mock_async_tool,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
-        assert tool_schema["description"] == mock_async_tool._AsyncToolboxTool__schema["description"]
+        assert (
+            tool_schema["description"]
+            == mock_async_tool._AsyncToolboxTool__schema["description"]
+        )
         mock_aload_tool.assert_called_once_with("test_tool", {}, None, {}, True)
 
     @pytest.mark.asyncio
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_toolset")
-    async def test_aload_toolset(self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    async def test_aload_toolset(
+        self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool1 = Mock(spec=AsyncToolboxTool)
         mock_async_tool1._AsyncToolboxTool__name = "mock-tool-0"
         mock_async_tool1._AsyncToolboxTool__schema = tool_schema
@@ -116,15 +144,23 @@ class TestToolboxClient:
 
         tools = await toolbox_client.aload_toolset()
         assert len(tools) == 2
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool1, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool2, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool1,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool2,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
         mock_aload_toolset.assert_called_once_with(None, {}, None, {}, True)
 
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_tool")
-    def test_load_tool_with_args(self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    def test_load_tool_with_args(
+        self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool = Mock(spec=AsyncToolboxTool)
         mock_async_tool._AsyncToolboxTool__name = "mock-tool"
         mock_async_tool._AsyncToolboxTool__schema = tool_schema
@@ -141,17 +177,25 @@ class TestToolboxClient:
             bound_params=bound_params,
             strict=False,
         )
-        mock_toolbox_tool_init.assert_called_once_with(mock_async_tool, toolbox_client._ToolboxClient__loop,
-                                                       toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_called_once_with(
+            mock_async_tool,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
-        assert tool_schema["description"] == mock_async_tool._AsyncToolboxTool__schema["description"]
+        assert (
+            tool_schema["description"]
+            == mock_async_tool._AsyncToolboxTool__schema["description"]
+        )
         mock_aload_tool.assert_called_once_with(
             "test_tool_name", auth_tokens, auth_headers, bound_params, False
         )
 
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_toolset")
-    def test_load_toolset_with_args(self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    def test_load_toolset_with_args(
+        self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool1 = Mock(spec=AsyncToolboxTool)
         mock_async_tool1._AsyncToolboxTool__name = "mock-tool-0"
         mock_async_tool1._AsyncToolboxTool__schema = tool_schema
@@ -175,10 +219,16 @@ class TestToolboxClient:
         )
 
         assert len(tools) == 2
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool1, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool2, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool1,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool2,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
         mock_aload_toolset.assert_called_once_with(
             "my_toolset", auth_tokens, auth_headers, bound_params, False
@@ -187,7 +237,9 @@ class TestToolboxClient:
     @pytest.mark.asyncio
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_tool")
-    async def test_aload_tool_with_args(self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema):
+    async def test_aload_tool_with_args(
+        self, mock_aload_tool, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool = Mock(spec=AsyncToolboxTool)
         mock_async_tool._AsyncToolboxTool__name = "mock-tool"
         mock_async_tool._AsyncToolboxTool__schema = tool_schema
@@ -200,10 +252,16 @@ class TestToolboxClient:
         tool = await toolbox_client.aload_tool(
             "test_tool", auth_tokens, auth_headers, bound_params, False
         )
-        mock_toolbox_tool_init.assert_called_once_with(mock_async_tool, toolbox_client._ToolboxClient__loop,
-                                                       toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_called_once_with(
+            mock_async_tool,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
-        assert tool_schema["description"] == mock_async_tool._AsyncToolboxTool__schema["description"]
+        assert (
+            tool_schema["description"]
+            == mock_async_tool._AsyncToolboxTool__schema["description"]
+        )
         mock_aload_tool.assert_called_once_with(
             "test_tool", auth_tokens, auth_headers, bound_params, False
         )
@@ -211,8 +269,9 @@ class TestToolboxClient:
     @pytest.mark.asyncio
     @patch("toolbox_llamaindex.client.ToolboxTool.__init__", return_value=None)
     @patch("toolbox_llamaindex.client.AsyncToolboxClient.aload_toolset")
-    async def test_aload_toolset_with_args(self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client,
-                                           tool_schema):
+    async def test_aload_toolset_with_args(
+        self, mock_aload_toolset, mock_toolbox_tool_init, toolbox_client, tool_schema
+    ):
         mock_async_tool1 = Mock(spec=AsyncToolboxTool)
         mock_async_tool1._AsyncToolboxTool__name = "mock-tool-0"
         mock_async_tool1._AsyncToolboxTool__schema = tool_schema
@@ -230,10 +289,16 @@ class TestToolboxClient:
             "my_toolset", auth_tokens, auth_headers, bound_params, False
         )
         assert len(tools) == 2
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool1, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
-        mock_toolbox_tool_init.assert_any_call(mock_async_tool2, toolbox_client._ToolboxClient__loop,
-                                               toolbox_client._ToolboxClient__thread)
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool1,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
+        mock_toolbox_tool_init.assert_any_call(
+            mock_async_tool2,
+            toolbox_client._ToolboxClient__loop,
+            toolbox_client._ToolboxClient__thread,
+        )
 
         mock_aload_toolset.assert_called_once_with(
             "my_toolset", auth_tokens, auth_headers, bound_params, False

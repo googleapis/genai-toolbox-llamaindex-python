@@ -16,8 +16,9 @@ from copy import deepcopy
 from typing import Any, Callable, TypeVar, Union
 from warnings import warn
 
-from aiohttp import ClientSession
-from llama_index.core.tools import FunctionTool, ToolMetadata
+from aiohttp import ClientSession, ClientResponseError
+from llama_index.core.tools import ToolMetadata
+from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
 from toolbox_llamaindex.utils import (
     ToolSchema,
@@ -33,16 +34,16 @@ T = TypeVar("T")
 # This class is an internal implementation detail and is not exposed to the
 # end-user. It should not be used directly by external code. Changes to this
 # class will not be considered breaking changes to the public API.
-class AsyncToolboxTool(FunctionTool):
+class AsyncToolboxTool(AsyncBaseTool):
     """
-    A subclass of LlamaIndex's FunctionTool that supports features specific to
+    A subclass of LlamaIndex's AsyncBaseTool that supports features specific to
     Toolbox, like bound parameters and authenticated tools.
     """
 
     def __init__(
         self,
         name: str,
-        schema: ToolSchema,
+        schema: ToolSchema | dict,
         url: str,
         session: ClientSession,
         auth_tokens: dict[str, Callable[[], str]] = {},
@@ -123,15 +124,14 @@ class AsyncToolboxTool(FunctionTool):
         # Due to how pydantic works, we must initialize the underlying
         # FunctionTool class before assigning values to member variables.
         super().__init__(
-            async_fn=self._acall,
-            fn=self._call,
-            metadata=ToolMetadata(
-                name=name,
-                description=schema.description,
-                fn_schema=_schema_to_model(model_name=name, schema=schema.parameters),
-            ),
+            # async_fn=self._acall,
+            # fn=self._call,
+            # metadata=ToolMetadata(
+            #     name=name,
+            #     description=schema.description,
+            #     fn_schema=_schema_to_model(model_name=name, schema=schema.parameters),
+            # ),
         )
-
         self.__name = name
         self.__schema = schema
         self.__url = url
@@ -144,15 +144,23 @@ class AsyncToolboxTool(FunctionTool):
         # tool invocation.
         self.__validate_auth(strict=False)
 
-    def _call(self, **kwargs: Any) -> dict[str, Any]:
+    @property
+    def metadata(self) -> ToolMetadata:
+        return ToolMetadata(
+            name=self.__name,
+            description=self.__schema.description,
+            fn_schema=_schema_to_model(model_name=self.__name, schema=self.__schema.parameters),
+        )
+
+    def call(self, **kwargs: Any) -> ToolOutput:
         raise NotImplementedError("Synchronous methods not supported by async tools.")
 
-    async def _acall(self, **kwargs: Any) -> dict[str, Any]:
+    async def acall(self, **kwargs: Any) -> ToolOutput:
         """
         The coroutine that invokes the tool with the given arguments.
 
         Args:
-            **kwargs: The arguments to the tool.
+            kwargs: The arguments to the tool.
 
         Returns:
             A dictionary containing the parsed JSON response from the tool
@@ -179,10 +187,25 @@ class AsyncToolboxTool(FunctionTool):
 
         # Merge bound parameters with the provided arguments
         kwargs.update(evaluated_params)
-
-        return await _invoke_tool(
-            self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
-        )
+        try:
+            response = await _invoke_tool(
+                self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
+            )
+            return ToolOutput(
+                content=str(response),
+                tool_name=self.__name,
+                raw_input=kwargs,
+                raw_output=response,
+                is_error=False,
+            )
+        except ClientResponseError as e:
+            return ToolOutput(
+                content=str(e),
+                tool_name=self.__name,
+                raw_input=kwargs,
+                raw_output=None,
+                is_error=True,
+            )
 
     def __validate_auth(self, strict: bool = True) -> None:
         """
@@ -227,11 +250,11 @@ class AsyncToolboxTool(FunctionTool):
             warn(message)
 
     def __create_copy(
-        self,
-        *,
-        auth_tokens: dict[str, Callable[[], str]] = {},
-        bound_params: dict[str, Union[Any, Callable[[], Any]]] = {},
-        strict: bool,
+            self,
+            *,
+            auth_tokens: dict[str, Callable[[], str]] = {},
+            bound_params: dict[str, Union[Any, Callable[[], Any]]] = {},
+            strict: bool,
     ) -> "AsyncToolboxTool":
         """
         Creates a copy of the current AsyncToolboxTool instance, allowing for
@@ -278,7 +301,7 @@ class AsyncToolboxTool(FunctionTool):
         )
 
     def add_auth_tokens(
-        self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True
+            self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True
     ) -> "AsyncToolboxTool":
         """
         Registers functions to retrieve ID tokens for the corresponding
@@ -314,7 +337,7 @@ class AsyncToolboxTool(FunctionTool):
         return self.__create_copy(auth_tokens=auth_tokens, strict=strict)
 
     def add_auth_token(
-        self, auth_source: str, get_id_token: Callable[[], str], strict: bool = True
+            self, auth_source: str, get_id_token: Callable[[], str], strict: bool = True
     ) -> "AsyncToolboxTool":
         """
         Registers a function to retrieve an ID token for a given authentication
@@ -338,9 +361,9 @@ class AsyncToolboxTool(FunctionTool):
         return self.add_auth_tokens({auth_source: get_id_token}, strict=strict)
 
     def bind_params(
-        self,
-        bound_params: dict[str, Union[Any, Callable[[], Any]]],
-        strict: bool = True,
+            self,
+            bound_params: dict[str, Union[Any, Callable[[], Any]]],
+            strict: bool = True,
     ) -> "AsyncToolboxTool":
         """
         Registers values or functions to retrieve the value for the
@@ -377,19 +400,18 @@ class AsyncToolboxTool(FunctionTool):
         return self.__create_copy(bound_params=bound_params, strict=strict)
 
     def bind_param(
-        self,
-        param_name: str,
-        param_value: Union[Any, Callable[[], Any]],
-        strict: bool = True,
+            self,
+            param_name: str,
+            param_value: Union[Any, Callable[[], Any]],
+            strict: bool = True,
     ) -> "AsyncToolboxTool":
         """
         Registers a value or a function to retrieve the value for a given bound
         parameter.
 
         Args:
-            param_name: The name of the bound parameter. param_value: The value
-            of the bound parameter, or a callable that
-                returns the value.
+            param_name: The name of the bound parameter.
+            param_value: The value of the bound parameter, or a callable that returns the value.
             strict: If True, a ValueError is raised if any of the provided bound
                 params is not defined in the tool's schema, or requires
                 authentication. If False, only a warning is issued.

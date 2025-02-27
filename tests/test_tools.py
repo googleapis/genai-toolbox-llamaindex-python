@@ -231,12 +231,9 @@ class TestToolboxTool:
     #     result = await toolbox_tool.acall(param1="value", param2=2)
     #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value", param2=2)
     #     assert result == {"result": "success"}
-    #
-    # @pytest.mark.asyncio
-    # async def test_toolbox_tool_sync_run(self, toolbox_tool):
+
+    # def test_toolbox_tool_sync_run(self, toolbox_tool):
     #     toolbox_tool._ToolboxTool__async_tool.acall = AsyncMock(return_value={"result": "success"})
-    #     print("DEBUG: Before calling the tool")
     #     result = toolbox_tool.call(param1 = "value1", param2 = 3)
-    #     assert 0 == 1
     #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value1", param2=3)
     #     assert result == {"result": "sync success"}

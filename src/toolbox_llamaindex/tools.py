@@ -30,6 +30,7 @@ class ToolboxTool(AsyncBaseTool):
     A subclass of LlamaIndex's FunctionTool that supports features specific to
     Toolbox, like bound parameters and authenticated tools.
     """
+
     def __init__(
         self,
         async_tool: AsyncToolboxTool,
@@ -76,9 +77,9 @@ class ToolboxTool(AsyncBaseTool):
     def metadata(self) -> ToolMetadata:
         async_tool = self.__async_tool
         return ToolMetadata(
-                name=async_tool.metadata.name,
-                description=async_tool.metadata.description,
-                fn_schema=async_tool.metadata.fn_schema,
+            name=async_tool.metadata.name,
+            description=async_tool.metadata.description,
+            fn_schema=async_tool.metadata.fn_schema,
         )
 
     def call(self, **kwargs: Any) -> ToolOutput:

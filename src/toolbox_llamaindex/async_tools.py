@@ -149,7 +149,9 @@ class AsyncToolboxTool(AsyncBaseTool):
         return ToolMetadata(
             name=self.__name,
             description=self.__schema.description,
-            fn_schema=_schema_to_model(model_name=self.__name, schema=self.__schema.parameters),
+            fn_schema=_schema_to_model(
+                model_name=self.__name, schema=self.__schema.parameters
+            ),
         )
 
     def call(self, **kwargs: Any) -> ToolOutput:
@@ -250,11 +252,11 @@ class AsyncToolboxTool(AsyncBaseTool):
             warn(message)
 
     def __create_copy(
-            self,
-            *,
-            auth_tokens: dict[str, Callable[[], str]] = {},
-            bound_params: dict[str, Union[Any, Callable[[], Any]]] = {},
-            strict: bool,
+        self,
+        *,
+        auth_tokens: dict[str, Callable[[], str]] = {},
+        bound_params: dict[str, Union[Any, Callable[[], Any]]] = {},
+        strict: bool,
     ) -> "AsyncToolboxTool":
         """
         Creates a copy of the current AsyncToolboxTool instance, allowing for
@@ -301,7 +303,7 @@ class AsyncToolboxTool(AsyncBaseTool):
         )
 
     def add_auth_tokens(
-            self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True
+        self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True
     ) -> "AsyncToolboxTool":
         """
         Registers functions to retrieve ID tokens for the corresponding
@@ -337,7 +339,7 @@ class AsyncToolboxTool(AsyncBaseTool):
         return self.__create_copy(auth_tokens=auth_tokens, strict=strict)
 
     def add_auth_token(
-            self, auth_source: str, get_id_token: Callable[[], str], strict: bool = True
+        self, auth_source: str, get_id_token: Callable[[], str], strict: bool = True
     ) -> "AsyncToolboxTool":
         """
         Registers a function to retrieve an ID token for a given authentication
@@ -361,9 +363,9 @@ class AsyncToolboxTool(AsyncBaseTool):
         return self.add_auth_tokens({auth_source: get_id_token}, strict=strict)
 
     def bind_params(
-            self,
-            bound_params: dict[str, Union[Any, Callable[[], Any]]],
-            strict: bool = True,
+        self,
+        bound_params: dict[str, Union[Any, Callable[[], Any]]],
+        strict: bool = True,
     ) -> "AsyncToolboxTool":
         """
         Registers values or functions to retrieve the value for the
@@ -400,10 +402,10 @@ class AsyncToolboxTool(AsyncBaseTool):
         return self.__create_copy(bound_params=bound_params, strict=strict)
 
     def bind_param(
-            self,
-            param_name: str,
-            param_value: Union[Any, Callable[[], Any]],
-            strict: bool = True,
+        self,
+        param_name: str,
+        param_value: Union[Any, Callable[[], Any]],
+        strict: bool = True,
     ) -> "AsyncToolboxTool":
         """
         Registers a value or a function to retrieve the value for a given bound

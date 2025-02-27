@@ -73,8 +73,8 @@ class TestAsyncToolboxTool:
             return_value={"result": "test-result"}
         )
         with pytest.warns(
-                UserWarning,
-                match=r"Parameter\(s\) `param1` of tool test_tool require authentication",
+            UserWarning,
+            match=r"Parameter\(s\) `param1` of tool test_tool require authentication",
         ):
             tool = AsyncToolboxTool(
                 name="test_tool",
@@ -102,13 +102,13 @@ class TestAsyncToolboxTool:
             ({"param1": "bound-value"}, {"param1": "bound-value"}),
             ({"param1": lambda: "bound-value"}, {"param1": lambda: "bound-value"}),
             (
-                    {"param1": "bound-value", "param2": 123},
-                    {"param1": "bound-value", "param2": 123},
+                {"param1": "bound-value", "param2": 123},
+                {"param1": "bound-value", "param2": 123},
             ),
         ],
     )
     async def test_toolbox_tool_bind_params(
-            self, toolbox_tool, params, expected_bound_params
+        self, toolbox_tool, params, expected_bound_params
     ):
         tool = toolbox_tool.bind_params(params)
         for key, value in expected_bound_params.items():
@@ -154,23 +154,23 @@ class TestAsyncToolboxTool:
         "auth_tokens, expected_auth_tokens",
         [
             (
-                    {"test-auth-source": lambda: "test-token"},
-                    {"test-auth-source": lambda: "test-token"},
+                {"test-auth-source": lambda: "test-token"},
+                {"test-auth-source": lambda: "test-token"},
             ),
             (
-                    {
-                        "test-auth-source": lambda: "test-token",
-                        "another-auth-source": lambda: "another-token",
-                    },
-                    {
-                        "test-auth-source": lambda: "test-token",
-                        "another-auth-source": lambda: "another-token",
-                    },
+                {
+                    "test-auth-source": lambda: "test-token",
+                    "another-auth-source": lambda: "another-token",
+                },
+                {
+                    "test-auth-source": lambda: "test-token",
+                    "another-auth-source": lambda: "another-token",
+                },
             ),
         ],
     )
     async def test_toolbox_tool_add_auth_tokens(
-            self, auth_toolbox_tool, auth_tokens, expected_auth_tokens
+        self, auth_toolbox_tool, auth_tokens, expected_auth_tokens
     ):
         tool = auth_toolbox_tool.add_auth_tokens(auth_tokens)
         for source, getter in expected_auth_tokens.items():
@@ -183,8 +183,8 @@ class TestAsyncToolboxTool:
         with pytest.raises(ValueError) as e:
             tool = tool.add_auth_tokens({"test-auth-source": lambda: "test-token"})
         assert (
-                "Authentication source(s) `test-auth-source` already registered in tool `test_tool`."
-                in str(e.value)
+            "Authentication source(s) `test-auth-source` already registered in tool `test_tool`."
+            in str(e.value)
         )
 
     async def test_toolbox_tool_validate_auth_strict(self, auth_toolbox_tool):
@@ -211,7 +211,7 @@ class TestAsyncToolboxTool:
         ],
     )
     async def test_toolbox_tool_call_with_bound_params(
-            self, toolbox_tool, bound_param, expected_value
+        self, toolbox_tool, bound_param, expected_value
     ):
         tool = toolbox_tool.bind_params(bound_param)
         result = await tool.acall(param2=123)
@@ -236,8 +236,8 @@ class TestAsyncToolboxTool:
 
     async def test_toolbox_tool_call_with_auth_tokens_insecure(self, auth_toolbox_tool):
         with pytest.warns(
-                UserWarning,
-                match="Sending ID token over HTTP. User data may be exposed. Use HTTPS for secure communication.",
+            UserWarning,
+            match="Sending ID token over HTTP. User data may be exposed. Use HTTPS for secure communication.",
         ):
             auth_toolbox_tool._AsyncToolboxTool__url = "http://test-url"
             tool = auth_toolbox_tool.add_auth_tokens(

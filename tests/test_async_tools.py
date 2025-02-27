@@ -253,7 +253,7 @@ class TestAsyncToolboxTool:
 
     async def test_toolbox_tool_call_with_invalid_input(self, toolbox_tool):
         with pytest.raises(ValidationError) as e:
-            await toolbox_tool.acall({"param1":123, "param2":"invalid"})
+            await toolbox_tool.acall({"param1": 123, "param2": "invalid"})
         assert "2 validation errors for test_tool" in str(e.value)
         assert "param1\n  Input should be a valid string" in str(e.value)
         assert "param2\n  Input should be a valid integer" in str(e.value)

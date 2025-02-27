@@ -20,6 +20,7 @@ from pydantic import BaseModel
 from toolbox_llamaindex.async_tools import AsyncToolboxTool
 from toolbox_llamaindex.tools import ToolboxTool
 
+
 class TestToolboxTool:
     @pytest.fixture
     def tool_schema(self):

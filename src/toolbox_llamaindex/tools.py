@@ -82,8 +82,6 @@ class ToolboxTool(AsyncBaseTool):
         )
 
     def call(self, **kwargs: Any) -> ToolOutput:
-        if not isinstance(input, dict):
-            raise ValueError("Input must be a dictionary.")
         return self.__run_as_sync(self.__async_tool.acall(**kwargs))
 
     async def acall(self, **kwargs: Any) -> ToolOutput:

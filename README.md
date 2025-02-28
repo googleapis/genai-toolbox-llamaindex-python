@@ -26,7 +26,7 @@ applications, enabling advanced orchestration and interaction with GenAI models.
     - [Binding Parameters to a Tool](#binding-parameters-to-a-tool)
     - [Binding Parameters While Loading](#binding-parameters-while-loading)
     - [Binding Dynamic Values](#binding-dynamic-values)
-- [Error Handling](#error-handling)
+- [Asynchronous Usage](#asynchronous-usage)
 
 <!-- /TOC -->
 

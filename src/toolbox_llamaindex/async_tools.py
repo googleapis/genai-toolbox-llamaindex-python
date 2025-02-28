@@ -146,10 +146,10 @@ class AsyncToolboxTool(AsyncBaseTool):
             ),
         )
 
-    def call(self, *args: Any, **kwargs: Any) -> ToolOutput: # type: ignore
+    def call(self, *args: Any, **kwargs: Any) -> ToolOutput:  # type: ignore
         raise NotImplementedError("Synchronous methods not supported by async tools.")
 
-    async def acall(self, **kwargs: Any) -> ToolOutput: # type: ignore
+    async def acall(self, **kwargs: Any) -> ToolOutput:  # type: ignore
         """
         The coroutine that invokes the tool with the given arguments.
 

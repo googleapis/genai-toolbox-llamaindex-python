@@ -20,7 +20,7 @@ from aiohttp import ClientResponseError, ClientSession
 from llama_index.core.tools import ToolMetadata
 from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
-from toolbox_llamaindex.utils import (
+from .utils import (
     ToolSchema,
     _find_auth_params,
     _find_bound_params,

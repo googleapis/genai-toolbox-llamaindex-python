@@ -110,7 +110,7 @@ class TestE2EClientAsync:
 
     async def test_run_tool_wrong_param_type(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Input should be a valid string"):
-            await get_n_rows_tool.acall(num_rows="2")
+            await get_n_rows_tool.acall(num_rows=2)
 
     ##### Auth tests
     @pytest.mark.asyncio
@@ -251,7 +251,7 @@ class TestE2EClientSync:
 
     def test_run_tool_wrong_param_type(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Input should be a valid string"):
-            get_n_rows_tool.call(num_rows="2")
+            get_n_rows_tool.call(num_rows=2)
 
     #### Auth tests
     def test_run_tool_unauth_with_auth(self, toolbox, auth_token2):

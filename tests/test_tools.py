@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+import concurrent.futures
 
 import pytest
 from pydantic import BaseModel
@@ -221,3 +222,22 @@ class TestToolboxTool:
         assert "Parameter(s) `param1` of tool test_tool require authentication" in str(
             e.value
         )
+
+    @pytest.mark.asyncio
+    @patch("asyncio.run_coroutine_threadsafe")
+    async def test_toolbox_tool_run(self, mock_run_coroutine_threadsafe, toolbox_tool):
+        future = concurrent.futures.Future()
+        future.set_result({"result": "async success"})
+        mock_run_coroutine_threadsafe.return_value = future
+        result = await toolbox_tool.acall({"param1": "value1", "param2": 3})
+        mock_run_coroutine_threadsafe.assert_called_once()
+        assert result == {"result": "async success"}
+
+    @patch("asyncio.run_coroutine_threadsafe")
+    def test_toolbox_tool_sync_run(self, mock_run_coroutine_threadsafe, toolbox_tool):
+        future = concurrent.futures.Future()
+        future.set_result({"result": "sync success"})
+        mock_run_coroutine_threadsafe.return_value = future
+        result = toolbox_tool.call({"param1": "value1", "param2": 3})
+        mock_run_coroutine_threadsafe.assert_called_once()
+        assert result == {"result": "sync success"}

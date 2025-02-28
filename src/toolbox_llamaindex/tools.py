@@ -82,11 +82,11 @@ class ToolboxTool(AsyncBaseTool):
             fn_schema=async_tool.metadata.fn_schema,
         )
 
-    def call(self, input: Any) -> ToolOutput:
-        return self.__run_as_sync(self.__async_tool.acall(input))
+    def call(self, **kwargs: Any) -> ToolOutput:
+        return self.__run_as_sync(self.__async_tool.acall(**kwargs))
 
-    async def acall(self, input: Any) -> ToolOutput:
-        return await self.__run_as_async(self.__async_tool.acall(input))
+    async def acall(self, **kwargs: Any) -> ToolOutput:
+        return await self.__run_as_async(self.__async_tool.acall(**kwargs))
 
     def add_auth_tokens(
         self, auth_tokens: dict[str, Callable[[], str]], strict: bool = True

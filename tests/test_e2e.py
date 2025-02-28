@@ -89,7 +89,7 @@ class TestE2EClientAsync:
             assert name in tool_names
 
     async def test_run_tool_async(self, get_n_rows_tool):
-        response = await get_n_rows_tool.acall({"num_rows": "2"})
+        response = await get_n_rows_tool.acall(num_rows="2")
         result = response.content
 
         assert "row1" in result
@@ -97,7 +97,7 @@ class TestE2EClientAsync:
         assert "row3" not in result
 
     async def test_run_tool_sync(self, get_n_rows_tool):
-        response = get_n_rows_tool.call({"num_rows": "2"})
+        response = get_n_rows_tool.call(num_rows="2")
         result = response.content
 
         assert "row1" in result
@@ -106,11 +106,11 @@ class TestE2EClientAsync:
 
     async def test_run_tool_missing_params(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Field required"):
-            await get_n_rows_tool.acall({})
+            await get_n_rows_tool.acall()
 
     async def test_run_tool_wrong_param_type(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Input should be a valid string"):
-            await get_n_rows_tool.acall({"num_rows": 2})
+            await get_n_rows_tool.acall(num_rows="2")
 
     ##### Auth tests
     @pytest.mark.asyncio
@@ -119,7 +119,7 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-id", auth_tokens={"my-test-auth": lambda: auth_token2}
         )
-        response = await tool.acall({"id": "2"})
+        response = await tool.acall(id="2")
         assert "row2" in response.content
 
     async def test_run_tool_no_auth(self, toolbox):
@@ -127,7 +127,7 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-id-auth",
         )
-        response = await tool.acall({"id": "2"})
+        response = await tool.acall(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)
@@ -138,7 +138,7 @@ class TestE2EClientAsync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        response = await auth_tool.acall({"id": "2"})
+        response = await auth_tool.acall(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)
@@ -149,7 +149,7 @@ class TestE2EClientAsync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token1)
-        response = await auth_tool.acall({"id": "2"})
+        response = await auth_tool.acall(id="2")
         assert "row2" in response.content
 
     async def test_run_tool_param_auth_no_auth(self, toolbox):
@@ -159,14 +159,14 @@ class TestE2EClientAsync:
             PermissionError,
             match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
-            await tool.acall({"email": ""})
+            await tool.acall(email="")
 
     async def test_run_tool_param_auth(self, toolbox, auth_token1):
         """Tests running a tool with a param requiring auth, with correct auth."""
         tool = await toolbox.aload_tool(
             "get-row-by-email-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = await tool.acall({})
+        response = await tool.acall()
         result = response.content
         assert "row4" in result
         assert "row5" in result
@@ -177,7 +177,7 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = await tool.acall({})
+        response = await tool.acall()
         assert response.is_error == True
         assert "400, message='Bad Request'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)
@@ -230,7 +230,7 @@ class TestE2EClientSync:
 
     @pytest.mark.asyncio
     async def test_run_tool_async(self, get_n_rows_tool):
-        response = await get_n_rows_tool.acall({"num_rows": "2"})
+        response = await get_n_rows_tool.acall(num_rows="2")
         result = response.content
 
         assert "row1" in result
@@ -238,7 +238,7 @@ class TestE2EClientSync:
         assert "row3" not in result
 
     def test_run_tool_sync(self, get_n_rows_tool):
-        response = get_n_rows_tool.call({"num_rows": "2"})
+        response = get_n_rows_tool.call(num_rows="2")
         result = response.content
 
         assert "row1" in result
@@ -247,11 +247,11 @@ class TestE2EClientSync:
 
     def test_run_tool_missing_params(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Field required"):
-            get_n_rows_tool.call({})
+            get_n_rows_tool.call()
 
     def test_run_tool_wrong_param_type(self, get_n_rows_tool):
         with pytest.raises(ValidationError, match="Input should be a valid string"):
-            get_n_rows_tool.call({"num_rows": 2})
+            get_n_rows_tool.call(num_rows="2")
 
     #### Auth tests
     def test_run_tool_unauth_with_auth(self, toolbox, auth_token2):
@@ -259,7 +259,7 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-id", auth_tokens={"my-test-auth": lambda: auth_token2}
         )
-        response = tool.call({"id": "2"})
+        response = tool.call(id="2")
         assert "row2" in response.content
 
     def test_run_tool_no_auth(self, toolbox):
@@ -267,7 +267,7 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        response = tool.call({"id": "2"})
+        response = tool.call(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)
@@ -278,7 +278,7 @@ class TestE2EClientSync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        response = auth_tool.call({"id": "2"})
+        response = auth_tool.call(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)
@@ -289,7 +289,7 @@ class TestE2EClientSync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token1)
-        response = auth_tool.call({"id": "2"})
+        response = auth_tool.call(id="2")
         assert "row2" in response.content
 
     def test_run_tool_param_auth_no_auth(self, toolbox):
@@ -299,14 +299,14 @@ class TestE2EClientSync:
             PermissionError,
             match="Parameter\(s\) `email` of tool get-row-by-email-auth require authentication\, but no valid authentication sources are registered\. Please register the required sources before use\.",
         ):
-            tool.call({"email": ""})
+            tool.call(email="")
 
     def test_run_tool_param_auth(self, toolbox, auth_token1):
         """Tests running a tool with a param requiring auth, with correct auth."""
         tool = toolbox.load_tool(
             "get-row-by-email-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = tool.call({})
+        response = tool.call()
         result = response.content
         assert "row4" in result
         assert "row5" in result
@@ -317,7 +317,7 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = tool.call({})
+        response = tool.call()
         assert response.is_error == True
         assert "400, message='Bad Request'" in response.content
         assert isinstance(response.raw_output, ClientResponseError)

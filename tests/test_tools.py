@@ -218,7 +218,7 @@ class TestToolboxTool:
             )
         )
         with pytest.raises(PermissionError) as e:
-            await auth_toolbox_tool.acall({})
+            await auth_toolbox_tool.acall()
         assert "Parameter(s) `param1` of tool test_tool require authentication" in str(
             e.value
         )
@@ -229,7 +229,7 @@ class TestToolboxTool:
         future = concurrent.futures.Future()
         future.set_result({"result": "async success"})
         mock_run_coroutine_threadsafe.return_value = future
-        result = await toolbox_tool.acall({"param1": "value1", "param2": 3})
+        result = await toolbox_tool.acall(param1="value1", param2=3)
         mock_run_coroutine_threadsafe.assert_called_once()
         assert result == {"result": "async success"}
 
@@ -238,6 +238,6 @@ class TestToolboxTool:
         future = concurrent.futures.Future()
         future.set_result({"result": "sync success"})
         mock_run_coroutine_threadsafe.return_value = future
-        result = toolbox_tool.call({"param1": "value1", "param2": 3})
+        result = toolbox_tool.call(param1="value1", param2=3)
         mock_run_coroutine_threadsafe.assert_called_once()
         assert result == {"result": "sync success"}

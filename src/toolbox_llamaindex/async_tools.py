@@ -17,7 +17,7 @@ from typing import Any, Callable, TypeVar, Union
 from warnings import warn
 
 from aiohttp import ClientResponseError, ClientSession
-from llama_index.core.tools import ToolMetadata
+from llama_index.core.tools import ToolMetadata, FunctionTool
 from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
 from toolbox_llamaindex.utils import (
@@ -146,15 +146,15 @@ class AsyncToolboxTool(AsyncBaseTool):
             ),
         )
 
-    def call(self, input: Any) -> ToolOutput:
+    def call(self, *args: Any, **kwargs: Any) -> ToolOutput:
         raise NotImplementedError("Synchronous methods not supported by async tools.")
 
-    async def acall(self, input: Any) -> ToolOutput:
+    async def acall(self, **kwargs: Any) -> ToolOutput:
         """
         The coroutine that invokes the tool with the given arguments.
 
         Args:
-            input: The arguments to the tool.
+            kwargs: The arguments to the tool.
 
         Returns:
             A dictionary containing the parsed JSON response from the tool
@@ -164,7 +164,7 @@ class AsyncToolboxTool(AsyncBaseTool):
         input_args = _schema_to_model(
             model_name=self.__name, schema=self.__schema.parameters
         )
-        input_args.model_validate(input)
+        input_args.model_validate(kwargs)
 
         # If the tool had parameters that require authentication, then right
         # before invoking that tool, we check whether all these required
@@ -180,15 +180,15 @@ class AsyncToolboxTool(AsyncBaseTool):
                 evaluated_params[param_name] = param_value
 
         # Merge bound parameters with the provided arguments
-        input.update(evaluated_params)
+        kwargs.update(evaluated_params)
         try:
             response = await _invoke_tool(
-                self.__url, self.__session, self.__name, input, self.__auth_tokens
+                self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
             )
             return ToolOutput(
                 content=str(response),
                 tool_name=self.__name,
-                raw_input=input,
+                raw_input=kwargs,
                 raw_output=response,
                 is_error=False,
             )
@@ -196,7 +196,7 @@ class AsyncToolboxTool(AsyncBaseTool):
             return ToolOutput(
                 content=str(e),
                 tool_name=self.__name,
-                raw_input=input,
+                raw_input=kwargs,
                 raw_output=e,
                 is_error=True,
             )

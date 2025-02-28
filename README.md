@@ -8,8 +8,8 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 ## Table of Contents
 <!-- TOC -->
 
-- [Quickstart](#quickstart)
 - [Installation](#installation)
+- [Quickstart](#quickstart)
 - [Usage](#usage)
 - [Loading Tools](#loading-tools)
     - [Load a toolset](#load-a-toolset)
@@ -31,29 +31,6 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 
 <!-- /TOC -->
 
-## Quickstart
-
-Here's a minimal example to get you started:
-
-```py
-import asyncio
-from llama_index.llms.vertex import Vertex
-from llama_index.core.agent import ReActAgent
-from toolbox_llamaindex import ToolboxClient
-
-async def main():
-    toolbox = ToolboxClient("http://127.0.0.1:5000")
-    tools = await toolbox.load_toolset()
-    
-    model = Vertex(model="gemini-pro")
-    agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
-    response = agent.query("Get some response from the agent.")
-    print(response)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
 ## Installation
 
 > [!IMPORTANT]
@@ -66,6 +43,24 @@ You can install the Toolbox SDK for LlamaIndex using `pip`.
 pip install toolbox-llamaindex
 ```
 
+## Quickstart
+
+Here's a minimal example to get you started:
+
+```py
+from llama_index.llms.vertex import Vertex
+from llama_index.core.agent import ReActAgent
+from toolbox_llamaindex import ToolboxClient
+
+toolbox = ToolboxClient("http://127.0.0.1:5000")
+tools = toolbox.load_toolset()
+
+model = Vertex(model="gemini-1.5-pro-002")
+agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
+response = agent.query("Get some response from the agent.")
+print(response)
+```
+
 ## Usage
 
 Import and initialize the toolbox client.
@@ -76,18 +71,6 @@ from toolbox_llamaindex import ToolboxClient
 # Replace with your Toolbox service's URL
 toolbox = ToolboxClient("http://127.0.0.1:5000")
 ```
-
-> [!IMPORTANT]
-> The toolbox client requires an asynchronous environment.
-> For guidance on running asynchronous Python programs, see
-> [asyncio documentation](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program).
-
-> [!TIP]
-> You can also pass your own `ClientSession` to reuse the same session:
-> ```py
-> async with ClientSession() as session:
->   toolbox = ToolboxClient("http://localhost:5000", session)
-> ```
 
 ## Loading Tools
 
@@ -122,7 +105,7 @@ input. Include tools loaded from the Toolbox SDK in the agent's toolkit:
 from llama_index.llms.vertex import Vertex
 from llama_index.core.agent import ReActAgent
 
-model = Vertex(model="gemini-pro")
+model = Vertex(model="gemini-1.5-pro-002")
 
 # Initialize agent with tools
 agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
@@ -178,7 +161,7 @@ async def get_auth_token():
 #### Add Authentication to a Tool
 
 ```py
-toolbox = ToolboxClient("http://localhost:5000")
+toolbox = ToolboxClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset()
 
 auth_tool = tools[0].add_auth_token("my_auth", get_auth_token) # Single token
@@ -213,16 +196,12 @@ async def get_auth_token():
     # This example just returns a placeholder. Replace with your actual token retrieval.
     return "YOUR_ID_TOKEN" # Placeholder
 
-def main():
-    toolbox = ToolboxClient("http://localhost:5000")
-    tool = toolbox.load_tool("my-tool")
+toolbox = ToolboxClient("http://127.0.0.1:5000")
+tool = toolbox.load_tool("my-tool")
 
-    auth_tool = tool.add_auth_token("my_auth", get_auth_token)
-    result = auth_tool.call({"input": "some input"})
-    print(result)
-
-if __name__ == "__main__":
-    main()
+auth_tool = tool.add_auth_token("my_auth", get_auth_token)
+result = auth_tool.call({"input": "some input"})
+print(result)
 ```
 
 ## Binding Parameter Values
@@ -237,7 +216,7 @@ modified by the LLM. This is useful for:
 ### Binding Parameters to a Tool
 
 ```py
-toolbox = ToolboxClient("http://localhost:5000")
+toolbox = ToolboxClient("http://127.0.0.1:5000")
 tools = toolbox.load_toolset()
 
 bound_tool = tool[0].bind_param("param", "value") # Single param
@@ -275,15 +254,28 @@ dynamic_bound_tool = tool.bind_param("param", get_dynamic_value)
 > [!IMPORTANT]
 > You don't need to modify tool configurations to bind parameter values.
 
-## Error Handling
+## Asynchronous Usage
 
-When interacting with the Toolbox service or executing tools, you might
-encounter errors. Handle potential exceptions gracefully:
+For better performance through [cooperative
+multitasking](https://en.wikipedia.org/wiki/Cooperative_multitasking), you can
+use the asynchronous interfaces of the `ToolboxClient`.
+
+> [!Note]
+> Asynchronous interfaces like `aload_tool` and `aload_toolset` require an
+> asynchronous environment. For guidance on running asynchronous Python
+> programs, see [asyncio
+> documentation](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program).
 
 ```py
-try:
-    result = tool.call({"input": "some input"})
-except Exception as e:
-    print(f"An error occurred: {e}")
-    # Implement error recovery logic, e.g., retrying the request or logging the error
+import asyncio
+from toolbox_llamaindex import ToolboxClient
+
+async def main():
+    toolbox = ToolboxClient("http://127.0.0.1:5000")
+    tool = await toolbox.aload_tool("my-tool")
+    tools = await toolbox.aload_toolset()
+    response = await tool.ainvoke()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```

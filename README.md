@@ -274,7 +274,7 @@ async def main():
     toolbox = ToolboxClient("http://127.0.0.1:5000")
     tool = await toolbox.aload_tool("my-tool")
     tools = await toolbox.aload_toolset()
-    response = await tool.ainvoke()
+    response = await tool.acall()
 
 if __name__ == "__main__":
     asyncio.run(main())

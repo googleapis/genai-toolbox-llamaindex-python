@@ -46,7 +46,7 @@ class ToolboxTool(AsyncBaseTool):
             thread: The thread to run blocking operations in.
         """
         # Due to how pydantic works, we must initialize the underlying
-        # FunctionTool class before assigning values to member variables.
+        # AsyncBaseTool class before assigning values to member variables.
         super().__init__()
 
         self.__async_tool = async_tool

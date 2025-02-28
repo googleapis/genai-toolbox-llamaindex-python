@@ -17,7 +17,7 @@ from typing import Any, Callable, TypeVar, Union
 from warnings import warn
 
 from aiohttp import ClientResponseError, ClientSession
-from llama_index.core.tools import ToolMetadata, FunctionTool
+from llama_index.core.tools import FunctionTool, ToolMetadata
 from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
 from toolbox_llamaindex.utils import (

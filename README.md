@@ -161,7 +161,7 @@ async def get_auth_token():
 
 Adding an auth token to a tool allows users to use the following Features:
 - [Authorized Invocations](https://googleapis.github.io/genai-toolbox/resources/tools/#authorized-invocations): The
-tool is validated by the auth service before the call can be invoked. Toolbox will reject an calls that fail to 
+tool is validated by the auth service before the call can be invoked. Toolbox will reject all calls that fail to 
 validate or have an invalid token.
 - [Authenticated Parameters](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters): These
 replace the value of a parameter with a field from an [OIDC claim](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims). 
@@ -196,7 +196,6 @@ auth_tools = toolbox.load_toolset(auth_tokens={"my_auth": get_auth_token})
 ### Complete Example
 
 ```py
-import asyncio
 from toolbox_llamaindex import ToolboxClient
 
 async def get_auth_token():

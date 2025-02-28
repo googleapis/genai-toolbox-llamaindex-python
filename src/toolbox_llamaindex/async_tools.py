@@ -123,15 +123,7 @@ class AsyncToolboxTool(AsyncBaseTool):
 
         # Due to how pydantic works, we must initialize the underlying
         # FunctionTool class before assigning values to member variables.
-        super().__init__(
-            # async_fn=self._acall,
-            # fn=self._call,
-            # metadata=ToolMetadata(
-            #     name=name,
-            #     description=schema.description,
-            #     fn_schema=_schema_to_model(model_name=name, schema=schema.parameters),
-            # ),
-        )
+        super().__init__()
         self.__name = name
         self.__schema = schema
         self.__url = url

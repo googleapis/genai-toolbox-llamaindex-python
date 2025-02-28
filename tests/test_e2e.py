@@ -87,7 +87,6 @@ class TestE2EClient:
 
     ##### Auth tests
     @pytest.mark.asyncio
-    @pytest.mark.skip(reason="b/389574566")
     async def test_run_tool_unauth_with_auth(self, toolbox, auth_token2):
         """Tests running a tool that doesn't require auth, with auth provided."""
         tool = await toolbox.load_tool(
@@ -112,8 +111,7 @@ class TestE2EClient:
         tool = await toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        # TODO: Fix error message (b/389577313)
-        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
             await tool.acall(id="2")
 
     @pytest.mark.asyncio

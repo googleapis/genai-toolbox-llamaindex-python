@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from unittest.mock import Mock
 
 import pytest
@@ -222,17 +221,3 @@ class TestToolboxTool:
         assert "Parameter(s) `param1` of tool test_tool require authentication" in str(
             e.value
         )
-
-    # # TODO: Fix these
-    # @pytest.mark.asyncio
-    # async def test_toolbox_tool_run(self, toolbox_tool):
-    #     toolbox_tool._ToolboxTool__async_tool.acall = AsyncMock(return_value={"result": "success"})
-    #     result = await toolbox_tool.acall(param1="value", param2=2)
-    #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value", param2=2)
-    #     assert result == {"result": "success"}
-
-    # def test_toolbox_tool_sync_run(self, toolbox_tool):
-    #     toolbox_tool._ToolboxTool__async_tool.acall = AsyncMock(return_value={"result": "success"})
-    #     result = toolbox_tool.call(param1 = "value1", param2 = 3)
-    #     toolbox_tool._ToolboxTool__async_tool.acall.assert_awaited_once_with(param1="value1", param2=3)
-    #     assert result == {"result": "sync success"}

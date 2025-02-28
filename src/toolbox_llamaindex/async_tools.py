@@ -405,7 +405,8 @@ class AsyncToolboxTool(AsyncBaseTool):
 
         Args:
             param_name: The name of the bound parameter.
-            param_value: The value of the bound parameter, or a callable that returns the value.
+            param_value: The value of the bound parameter, or a callable that
+                returns the value.
             strict: If True, a ValueError is raised if any of the provided bound
                 params is not defined in the tool's schema, or requires
                 authentication. If False, only a warning is issued.

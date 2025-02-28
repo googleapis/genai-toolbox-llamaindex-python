@@ -20,8 +20,8 @@ applications, enabling advanced orchestration and interaction with GenAI models.
     - [Supported Authentication Mechanisms](#supported-authentication-mechanisms)
     - [Configure Tools](#configure-tools)
     - [Configure SDK](#configure-sdk)
-        - [Add Authentication to a Tool](#add-authentication-to-a-tool)
-        - [Add Authentication While Loading](#add-authentication-while-loading)
+        - [Add An Auth Token to a Tool](#add-an-auth-token-to-a-tool)
+        - [Add An Auth Token While Loading](#add-an-auth-token-while-loading)
     - [Complete Example](#complete-example)
 - [Binding Parameter Values](#binding-parameter-values)
     - [Binding Parameters to a Tool](#binding-parameters-to-a-tool)
@@ -158,7 +158,7 @@ async def get_auth_token():
     return "YOUR_ID_TOKEN" # Placeholder
 ```
 
-#### Add Authentication to a Tool
+#### Add an Auth Token to a Tool
 
 ```py
 toolbox = ToolboxClient("http://127.0.0.1:5000")
@@ -173,7 +173,7 @@ multi_auth_tool = tools[0].add_auth_tokens({"my_auth", get_auth_token}) # Multip
 auth_tools = [tool.add_auth_token("my_auth", get_auth_token) for tool in tools]
 ```
 
-#### Add Authentication While Loading
+#### Add an Auth Token While Loading
 
 ```py
 auth_tool = toolbox.load_tool(auth_tokens={"my_auth": get_auth_token})

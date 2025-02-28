@@ -144,7 +144,7 @@ access tokens) for [Google OAuth
 ### Configure Tools
 
 Refer to [these
-instructions](https://github.com/googleapis/genai-toolbox/blob/main/docs/en/resources/tools/_index.md#authenticated-parameters) 
+instructions](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters) 
 on configuring tools for authenticated parameters.
 
 ### Configure SDK

@@ -118,7 +118,7 @@ response = agent.query("Get some response from the agent.")
 Execute a tool manually using the `call` method:
 
 ```py
-result = tools[0].call({"name": "Alice", "age": 30})
+result = tools[0].call(name="Alice", age=30)
 ```
 
 This is useful for testing tools or when you need precise control over tool
@@ -207,7 +207,7 @@ toolbox = ToolboxClient("http://127.0.0.1:5000")
 tool = toolbox.load_tool("my-tool")
 
 auth_tool = tool.add_auth_token("my_auth", get_auth_token)
-result = auth_tool.call({"input": "some input"})
+result = auth_tool.call(input="some input")
 print(result)
 ```
 

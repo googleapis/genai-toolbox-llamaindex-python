@@ -17,7 +17,7 @@ from typing import Any, Callable, TypeVar, Union
 from warnings import warn
 
 from aiohttp import ClientResponseError, ClientSession
-from llama_index.core.tools import FunctionTool, ToolMetadata
+from llama_index.core.tools import ToolMetadata
 from llama_index.core.tools.types import AsyncBaseTool, ToolOutput
 
 from .utils import (
@@ -43,7 +43,7 @@ class AsyncToolboxTool(AsyncBaseTool):
     def __init__(
         self,
         name: str,
-        schema: Union[ToolSchema, dict],
+        schema: ToolSchema,
         url: str,
         session: ClientSession,
         auth_tokens: dict[str, Callable[[], str]] = {},

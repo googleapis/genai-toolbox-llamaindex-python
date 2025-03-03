@@ -176,7 +176,6 @@ class ToolboxTool(AsyncBaseTool):
             self.__thread,
         )
 
-
     def bind_param(
         self,
         param_name: str,

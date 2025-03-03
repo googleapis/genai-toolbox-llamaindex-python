@@ -176,6 +176,7 @@ class TestE2EClientAsync:
         with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
             await tool.acall()
 
+
 @pytest.mark.usefixtures("toolbox_server")
 class TestE2EClientSync:
     @pytest.fixture(scope="session")

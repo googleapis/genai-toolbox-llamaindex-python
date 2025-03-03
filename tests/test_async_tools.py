@@ -50,8 +50,8 @@ class TestAsyncToolboxTool:
 
     @pytest_asyncio.fixture
     @patch("aiohttp.ClientSession")
-    async def toolbox_tool(self, MockClientSession, tool_schema):
-        mock_session = MockClientSession.return_value
+    async def toolbox_tool(self, mock_client_session, tool_schema):
+        mock_session = mock_client_session.return_value
         mock_session.post.return_value.__aenter__.return_value.raise_for_status = Mock()
         mock_session.post.return_value.__aenter__.return_value.json = AsyncMock(
             return_value={"result": "test-result"}
@@ -66,8 +66,8 @@ class TestAsyncToolboxTool:
 
     @pytest_asyncio.fixture
     @patch("aiohttp.ClientSession")
-    async def auth_toolbox_tool(self, MockClientSession, auth_tool_schema):
-        mock_session = MockClientSession.return_value
+    async def auth_toolbox_tool(self, mock_client_session, auth_tool_schema):
+        mock_session = mock_client_session.return_value
         mock_session.post.return_value.__aenter__.return_value.raise_for_status = Mock()
         mock_session.post.return_value.__aenter__.return_value.json = AsyncMock(
             return_value={"result": "test-result"}
@@ -85,8 +85,8 @@ class TestAsyncToolboxTool:
         return tool
 
     @patch("aiohttp.ClientSession")
-    async def test_toolbox_tool_init(self, MockClientSession, tool_schema):
-        mock_session = MockClientSession.return_value
+    async def test_toolbox_tool_init(self, mock_client_session, tool_schema):
+        mock_session = mock_client_session.return_value
         tool = AsyncToolboxTool(
             name="test_tool",
             schema=tool_schema,

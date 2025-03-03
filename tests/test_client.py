@@ -24,7 +24,6 @@ from toolbox_llamaindex.utils import _schema_to_model
 
 URL = "http://test_url"
 
-
 class TestToolboxClient:
     @pytest.fixture
     def tool_schema(self):

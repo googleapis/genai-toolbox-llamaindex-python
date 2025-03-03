@@ -127,10 +127,8 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-id-auth",
         )
-        response = await tool.acall(id="2")
-        assert response.is_error == True
-        assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
+            await tool.acall(id="2")
 
     async def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -138,10 +136,8 @@ class TestE2EClientAsync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        response = await auth_tool.acall(id="2")
-        assert response.is_error == True
-        assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
+            await auth_tool.acall(id="2")
 
     async def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""
@@ -177,11 +173,8 @@ class TestE2EClientAsync:
         tool = await toolbox.aload_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = await tool.acall()
-        assert response.is_error == True
-        assert "400, message='Bad Request'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
-
+        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
+            await tool.acall()
 
 @pytest.mark.usefixtures("toolbox_server")
 class TestE2EClientSync:
@@ -267,10 +260,8 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-id-auth",
         )
-        response = tool.call(id="2")
-        assert response.is_error == True
-        assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
+            tool.call(id="2")
 
     def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -278,10 +269,9 @@ class TestE2EClientSync:
             "get-row-by-id-auth",
         )
         auth_tool = tool.add_auth_token("my-test-auth", lambda: auth_token2)
-        response = auth_tool.call(id="2")
-        assert response.is_error == True
-        assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+
+        with pytest.raises(ClientResponseError, match="401, message='Unauthorized'"):
+            auth_tool.call(id="2")
 
     def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""
@@ -317,7 +307,5 @@ class TestE2EClientSync:
         tool = toolbox.load_tool(
             "get-row-by-content-auth", auth_tokens={"my-test-auth": lambda: auth_token1}
         )
-        response = tool.call()
-        assert response.is_error == True
-        assert "400, message='Bad Request'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        with pytest.raises(ClientResponseError, match="400, message='Bad Request'"):
+            tool.call(id="2")

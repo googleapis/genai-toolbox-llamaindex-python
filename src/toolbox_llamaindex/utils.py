@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-from typing import Any, Callable, Optional, Type, Union, cast
+from typing import Any, Callable, Optional, Type, cast
 from warnings import warn
 
 from aiohttp import ClientSession

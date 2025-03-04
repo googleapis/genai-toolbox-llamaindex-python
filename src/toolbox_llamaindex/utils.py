@@ -131,10 +131,7 @@ def _parse_type(schema_: ParameterSchema) -> Any:
     elif type_ == "boolean":
         return bool
     elif type_ == "array":
-        if isinstance(schema_, ParameterSchema) and schema_.items:
-            return list[_parse_type(schema_.items)]  # type: ignore
-        else:
-            raise ValueError(f"Schema missing field items")
+        return list[Union[str, int, float, bool]]
     else:
         raise ValueError(f"Unsupported schema type: {type_}")
 

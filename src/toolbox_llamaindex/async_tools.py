@@ -161,8 +161,7 @@ class AsyncToolboxTool(AsyncBaseTool):
             invocation.
         """
         # Validate arguments with the schema
-        if kwargs:
-            self.metadata.fn_schema.model_validate(kwargs)
+        self.metadata.fn_schema.model_validate(kwargs)
 
         # If the tool had parameters that require authentication, then right
         # before invoking that tool, we check whether all these required

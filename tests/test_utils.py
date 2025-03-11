@@ -154,9 +154,9 @@ class TestUtils:
         model = _schema_to_model("TestModel", schema)
         assert issubclass(model, BaseModel)
 
-        assert model.model_fields["param1"].annotation == Union[str, None]
+        assert model.model_fields["param1"].annotation == str
         assert model.model_fields["param1"].description == "Parameter 1"
-        assert model.model_fields["param2"].annotation == Union[int, None]
+        assert model.model_fields["param2"].annotation == int
         assert model.model_fields["param2"].description == "Parameter 2"
 
     def test_schema_to_model_empty(self):

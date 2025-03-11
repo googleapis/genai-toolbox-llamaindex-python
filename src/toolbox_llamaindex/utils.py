@@ -97,9 +97,7 @@ def _schema_to_model(model_name: str, schema: list[ParameterSchema]) -> Type[Bas
         field_definitions[field.name] = cast(
             Any,
             (
-                # TODO: Remove the hardcoded optional types once optional fields
-                # are supported by Toolbox.
-                Optional[_parse_type(field)],
+                _parse_type(field),
                 Field(description=field.description),
             ),
         )

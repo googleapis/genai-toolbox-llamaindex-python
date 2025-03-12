@@ -204,6 +204,7 @@ async def _invoke_tool(
         response.raise_for_status()
         return await response.json()
 
+
 def _find_auth_params(
     params: list[ParameterSchema],
 ) -> tuple[list[ParameterSchema], list[ParameterSchema]]:

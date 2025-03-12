@@ -25,7 +25,6 @@ from pydantic import BaseModel
 
 from toolbox_llamaindex.utils import (
     ParameterSchema,
-    _convert_none_to_empty_string,
     _get_auth_headers,
     _invoke_tool,
     _load_manifest,
@@ -225,7 +224,7 @@ class TestUtils:
 
         mock_post.assert_called_once_with(
             "http://localhost:8000/api/tool/tool_name/invoke",
-            json=_convert_none_to_empty_string({"input": "data"}),
+            json={"input": "data"},
             headers={},
         )
         assert result == {"key": "value"}
@@ -252,7 +251,7 @@ class TestUtils:
 
         mock_post.assert_called_once_with(
             "http://localhost:8000/api/tool/tool_name/invoke",
-            json=_convert_none_to_empty_string({"input": "data"}),
+            json={"input": "data"},
             headers={"my_test_auth_token": "fake_id_token"},
         )
         assert result == {"key": "value"}
@@ -278,15 +277,10 @@ class TestUtils:
 
         mock_post.assert_called_once_with(
             "https://localhost:8000/api/tool/tool_name/invoke",
-            json=_convert_none_to_empty_string({"input": "data"}),
+            json={"input": "data"},
             headers={"my_test_auth_token": "fake_id_token"},
         )
         assert result == {"key": "value"}
-
-    def test_convert_none_to_empty_string(self):
-        input_dict = {"a": None, "b": 123}
-        expected_output = {"a": "", "b": 123}
-        assert _convert_none_to_empty_string(input_dict) == expected_output
 
     def test_get_auth_headers_deprecation_warning(self):
         """Test _get_auth_headers deprecation warning."""

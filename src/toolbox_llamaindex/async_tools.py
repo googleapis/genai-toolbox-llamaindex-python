@@ -179,16 +179,25 @@ class AsyncToolboxTool(AsyncBaseTool):
 
         # Merge bound parameters with the provided arguments
         kwargs.update(evaluated_params)
-        response = await _invoke_tool(
-            self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
-        )
-        return ToolOutput(
-            content=str(response),
-            tool_name=self.__name,
-            raw_input=kwargs,
-            raw_output=response,
-            is_error=False,
-        )
+        try:
+            response = await _invoke_tool(
+                self.__url, self.__session, self.__name, kwargs, self.__auth_tokens
+            )
+            return ToolOutput(
+                content=str(response),
+                tool_name=self.__name,
+                raw_input=kwargs,
+                raw_output=response,
+                is_error=False,
+            )
+        except ClientResponseError as e:
+            return ToolOutput(
+                content="Encountered error: " + str(e),
+                tool_name=self.__name,
+                raw_input=kwargs,
+                raw_output=str(e),
+                is_error=True,
+            )
 
     def __validate_auth(self, strict: bool = True) -> None:
         """

@@ -47,17 +47,30 @@ pip install toolbox-llamaindex
 Here's a minimal example to get you started:
 
 ```py
-from llama_index.llms.vertex import Vertex
-from llama_index.core.agent import ReActAgent
+import asyncio
+
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.core.agent.workflow import AgentWorkflow
+
 from toolbox_llamaindex import ToolboxClient
 
-toolbox = ToolboxClient("http://127.0.0.1:5000")
-tools = toolbox.load_toolset()
+async def run_agent():
+  toolbox = ToolboxClient("http://127.0.0.1:5000")
+  tools = toolbox.load_toolset()
 
-model = Vertex(model="gemini-1.5-pro-002")
-agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
-response = agent.query("Get some response from the agent.")
-print(response)
+  vertex_model = GoogleGenAI(
+      model="gemini-1.5-pro",
+      vertexai_config={"project": "project-id", "location": "us-central1"},
+  )
+  agent = AgentWorkflow.from_tools_or_functions(
+      tools,
+      llm=vertex_model,
+      system_prompt="You are a helpful assistant.",
+  )
+  response = await agent.run(user_msg="Get some response from the agent.")
+  print(response)
+
+asyncio.run(run_agent())
 ```
 
 ## Usage
@@ -95,24 +108,6 @@ tool = toolbox.load_tool("my-tool")
 Loading individual tools gives you finer-grained control over which tools are
 available to your LLM agent.
 
-## Use with LlamaIndex
-
-LlamaIndex's agents can dynamically choose and execute tools based on the user
-input. Include tools loaded from the Toolbox SDK in the agent's toolkit:
-
-```py
-from llama_index.llms.vertex import Vertex
-from llama_index.core.agent import ReActAgent
-
-model = Vertex(model="gemini-1.5-pro-002")
-
-# Initialize agent with tools
-agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
-
-# Query the agent
-response = agent.query("Get some response from the agent.")
-```
-
 ## Manual usage
 
 Execute a tool manually using the `call` method:
@@ -123,6 +118,57 @@ result = tools[0].call(name="Alice", age=30)
 
 This is useful for testing tools or when you need precise control over tool
 execution outside of an agent framework.
+
+## Use with LlamaIndex
+
+LlamaIndex's agents can dynamically choose and execute tools based on the user
+input. Include tools loaded from the Toolbox SDK in the agent's toolkit:
+
+```py
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.core.agent.workflow import AgentWorkflow
+
+vertex_model = GoogleGenAI(
+    model="gemini-1.5-pro",
+    vertexai_config={"project": "project-id", "location": "us-central1"},
+)
+
+# Initialize agent with tools
+agent = AgentWorkflow.from_tools_or_functions(
+    tools,
+    llm=vertex_model,
+    system_prompt="You are a helpful assistant.",
+)
+
+# Query the agent
+response = await agent.run(user_msg="Get some response from the agent.")
+print(response)
+```
+
+### Maintain state
+
+To maintain state for the agent, add context as follows:
+
+```py
+from llama_index.core.agent.workflow import AgentWorkflow
+from llama_index.core.workflow import Context
+from llama_index.llms.google_genai import GoogleGenAI
+
+vertex_model = GoogleGenAI(
+    model="gemini-1.5-pro",
+    vertexai_config={"project": "twisha-dev", "location": "us-central1"},
+)
+agent = AgentWorkflow.from_tools_or_functions(
+    tools,
+    llm=vertex_model,
+    system_prompt="You are a helpful assistant",
+)
+
+# Save memory in agent context
+ctx = Context(agent)
+response = await agent.run(user_msg="Give me some response.", ctx=ctx)
+print(response)
+```
 
 ## Authenticating Tools
 

@@ -130,7 +130,8 @@ class TestE2EClientAsync:
         response = await tool.acall(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output
 
     async def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -141,7 +142,8 @@ class TestE2EClientAsync:
         response = await auth_tool.acall(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output
 
     async def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""
@@ -180,7 +182,8 @@ class TestE2EClientAsync:
         response = await tool.acall()
         assert response.is_error == True
         assert "400, message='Bad Request'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output
 
 
 @pytest.mark.usefixtures("toolbox_server")
@@ -270,7 +273,8 @@ class TestE2EClientSync:
         response = tool.call(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output
 
     def test_run_tool_wrong_auth(self, toolbox, auth_token2):
         """Tests running a tool with incorrect auth."""
@@ -281,7 +285,8 @@ class TestE2EClientSync:
         response = auth_tool.call(id="2")
         assert response.is_error == True
         assert "401, message='Unauthorized'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output
 
     def test_run_tool_auth(self, toolbox, auth_token1):
         """Tests running a tool with correct auth."""
@@ -320,4 +325,5 @@ class TestE2EClientSync:
         response = tool.call()
         assert response.is_error == True
         assert "400, message='Bad Request'" in response.content
-        assert isinstance(response.raw_output, ClientResponseError)
+        assert isinstance(response.raw_output, str)
+        assert "ClientResponseError" in response.raw_output

@@ -18,9 +18,3 @@
 
 * Update README for new features ([#22](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/22)) ([f5060b9](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/f5060b9057329809073553c88ebd2e677db7b902))
 * Update the README to recommend AgentWorkflow for using LlamaIndex. ([#34](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/34)) ([fe8e74f](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/fe8e74fb2c76af6598e6054914b03731c85a2741))
-
-
-### Miscellaneous Chores
-
-* Release 0.0.1 ([#36](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/36)) ([fd1e3b3](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/fd1e3b32d4a6c7d5cd8e6250feaa406d0ebd930d))
-* Release 0.1.0 ([#37](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/37)) ([b61b334](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/b61b3342479a7b0120c18ee9f875515b3e066e3e))

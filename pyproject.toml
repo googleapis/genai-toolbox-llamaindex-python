@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "toolbox_langchain.version.__version__"}
+version = {attr = "toolbox_llamaindex.version.__version__"}
 
 [project.urls]
 Homepage = "https://github.com/googleapis/genai-toolbox"

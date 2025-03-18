@@ -3,13 +3,6 @@
 ## 0.1.0 (2025-03-17)
 
 
-### ⚠ BREAKING CHANGES
-
-* Add support for sync operations ([#20](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/20))
-* **llamaindex-sdk:** Add support for Bound Params. ([#10](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/10))
-* rename package to 'toolbox_llamaindex'  ([#8](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/8))
-* **toolbox-sdk:** deprecate 'add_auth_headers' in favor of 'add_auth_tokens'  ([#170](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/170))
-
 ### Features
 
 * Add support for sync operations ([#20](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/20)) ([1fa45af](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/1fa45afed49db863bf17641fb5984bf8ceb5a4c6))

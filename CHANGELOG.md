@@ -11,13 +11,8 @@
 ### Bug Fixes
 
 * Add items to parameter schema ([#9](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/9)) ([769b7f1](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/769b7f1c86dd83c9cd5e19c8bd28890da6f6a6ae))
-* Fix the errors showing up after setting up mypy type checker. ([#74](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/74)) ([0253474](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/0253474125152683521f9cad09fd368dbb22337d))
-* Fix issue causing client session to not close properly while closing SDK. ([#82](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/82)) ([321fffb](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/321fffb9c66ddfdb66fbbd1959b02db0bee9d55c))
 * Rename package to 'toolbox_llamaindex'  ([#8](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/8)) ([9b71c72](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/9b71c728a7887d783a027fc54367584e0ddd4489))
-* Schema float type ([#264](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/264)) ([8ba38a2](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/8ba38a2fc61925a75c0809d77f5802342391dea7))
 * Throw tool errors correctly. ([#35](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/35)) ([11159c6](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/11159c6ac9813d8da21888c70a8550518f64f3ce))
-* Deprecate 'add_auth_headers' in favor of 'add_auth_tokens'  ([#170](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/170)) ([1ea193e](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/1ea193ebf5cd61cf800c108771c6e433d2473be5))
-
 
 ### Documentation
 

@@ -34,6 +34,7 @@ Homepage = "https://github.com/googleapis/genai-toolbox-llamaindex-python"
 Repository = "https://github.com/googleapis/genai-toolbox-llamaindex-python.git"
 "Bug Tracker" = "https://github.com/googleapis/genai-toolbox-llamaindex-python/issues"
 Changelog = "https://github.com/googleapis/genai-toolbox-llamaindex-python/blob/main/CHANGELOG.md"
+readme = "README.md"
 
 [project.optional-dependencies]
 test = [

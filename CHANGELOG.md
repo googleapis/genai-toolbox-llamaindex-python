@@ -7,9 +7,6 @@
 
 * Add support for sync operations ([#20](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/20)) ([1fa45af](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/1fa45afed49db863bf17641fb5984bf8ceb5a4c6))
 * Add support for Bound Params. ([#10](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/10)) ([1d484a8](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/1d484a8daee5567d5a32d20ea492dbc125daf332))
-* Implement OAuth support for LlamaIndex. ([#159](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/159)) ([34113db](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/34113db2f1556035ce6450971d3550629b552b68))
-* Make ClientSession optional when initializing ToolboxClient ([#55](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/55)) ([e0c0e39](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/e0c0e39a3e39b0a4b717dcd6af8e4401eedbeaa4))
-
 
 ### Bug Fixes
 
@@ -24,7 +21,6 @@
 
 ### Documentation
 
-* Add README for LlamaIndex SDK ([#53](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/53)) ([c2b5348](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/c2b5348e389d61afec1f4c4e87551469b02316c9))
 * Update README for new features ([#22](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/22)) ([f5060b9](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/f5060b9057329809073553c88ebd2e677db7b902))
 * Update the README to recommend AgentWorkflow for using LlamaIndex. ([#34](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/34)) ([fe8e74f](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/fe8e74fb2c76af6598e6054914b03731c85a2741))
 

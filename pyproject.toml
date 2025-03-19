@@ -2,6 +2,7 @@
 name = "toolbox-llamaindex"
 dynamic = ["version"]
 description = "Python SDK for interacting with the Toolbox service with LlamaIndex"
+readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.9"
 authors = [
@@ -34,7 +35,6 @@ Homepage = "https://github.com/googleapis/genai-toolbox-llamaindex-python"
 Repository = "https://github.com/googleapis/genai-toolbox-llamaindex-python.git"
 "Bug Tracker" = "https://github.com/googleapis/genai-toolbox-llamaindex-python/issues"
 Changelog = "https://github.com/googleapis/genai-toolbox-llamaindex-python/blob/main/CHANGELOG.md"
-readme = "README.md"
 
 [project.optional-dependencies]
 test = [

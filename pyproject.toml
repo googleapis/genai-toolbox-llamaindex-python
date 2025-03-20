@@ -1,7 +1,8 @@
 [project]
 name = "toolbox-llamaindex"
-version="0.1.0"
+dynamic = ["version"]
 description = "Python SDK for interacting with the Toolbox service with LlamaIndex"
+readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.9"
 authors = [
@@ -26,22 +27,26 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+[tool.setuptools.dynamic]
+version = {attr = "toolbox_llamaindex.version.__version__"}
+
 [project.urls]
-Homepage = "https://github.com/googleapis/genai-toolbox"
-Repository = "https://github.com/googleapis/genai-toolbox.git"
-"Bug Tracker" = "https://github.com/googleapis/genai-toolbox/issues"
+Homepage = "https://github.com/googleapis/genai-toolbox-llamaindex-python"
+Repository = "https://github.com/googleapis/genai-toolbox-llamaindex-python.git"
+"Bug Tracker" = "https://github.com/googleapis/genai-toolbox-llamaindex-python/issues"
+Changelog = "https://github.com/googleapis/genai-toolbox-llamaindex-python/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [
     "black[jupyter]==25.1.0",
-    "isort==5.13.2",
+    "isort==6.0.1",
     "mypy==1.13.0",
     "pytest-asyncio==0.24.0",
     "pytest==8.3.3",
     "pytest-cov==6.0.0",
-    "Pillow==10.4.0",
+    "Pillow==11.1.0",
     "google-cloud-secret-manager==2.22.0",
-    "google-cloud-storage==2.19.0",
+    "google-cloud-storage==3.1.0",
 ]
 
 [build-system]

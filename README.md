@@ -9,29 +9,64 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 <!-- TOC -->
 
 - [Installation](#installation)
+- [Quickstart](#quickstart)
 - [Usage](#usage)
-- [Load a toolset](#load-a-toolset)
-- [Load a single tool](#load-a-single-tool)
+- [Loading Tools](#loading-tools)
+    - [Load a toolset](#load-a-toolset)
+    - [Load a single tool](#load-a-single-tool)
 - [Use with LlamaIndex](#use-with-llamaindex)
 - [Manual usage](#manual-usage)
 - [Authenticating Tools](#authenticating-tools)
     - [Supported Authentication Mechanisms](#supported-authentication-mechanisms)
-    - [Configuring Tools for Authentication](#configuring-tools-for-authentication)
-    - [Configure SDK for Authentication](#configure-sdk-for-authentication)
+    - [Configure Tools](#configure-tools)
+    - [Configure SDK](#configure-sdk)
+        - [Add An Auth Token to a Tool](#add-an-auth-token-to-a-tool)
     - [Complete Example](#complete-example)
+- [Binding Parameter Values](#binding-parameter-values)
+    - [Binding Parameters to a Tool](#binding-parameters-to-a-tool)
+    - [Binding Parameters While Loading](#binding-parameters-while-loading)
+    - [Binding Dynamic Values](#binding-dynamic-values)
+- [Asynchronous Usage](#asynchronous-usage)
 
 <!-- /TOC -->
 
 ## Installation
 
-> [!IMPORTANT]
-> This SDK is not yet available on PyPI. For now, install it from source by
-> following these [installation instructions](DEVELOPER.md).
-
 You can install the Toolbox SDK for LlamaIndex using `pip`.
 
 ```bash
 pip install toolbox-llamaindex
+```
+
+## Quickstart
+
+Here's a minimal example to get you started:
+
+```py
+import asyncio
+
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.core.agent.workflow import AgentWorkflow
+
+from toolbox_llamaindex import ToolboxClient
+
+async def run_agent():
+  toolbox = ToolboxClient("http://127.0.0.1:5000")
+  tools = toolbox.load_toolset()
+
+  vertex_model = GoogleGenAI(
+      model="gemini-1.5-pro",
+      vertexai_config={"project": "project-id", "location": "us-central1"},
+  )
+  agent = AgentWorkflow.from_tools_or_functions(
+      tools,
+      llm=vertex_model,
+      system_prompt="You are a helpful assistant.",
+  )
+  response = await agent.run(user_msg="Get some response from the agent.")
+  print(response)
+
+asyncio.run(run_agent())
 ```
 
 ## Usage
@@ -45,64 +80,90 @@ from toolbox_llamaindex import ToolboxClient
 toolbox = ToolboxClient("http://127.0.0.1:5000")
 ```
 
-> [!IMPORTANT]
-> The toolbox client requires an asynchronous environment.
-> For guidance on running asynchronous Python programs, see
-> [running an async program in python](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program).
+## Loading Tools
 
-> [!TIP]
-> You can also pass your own `ClientSession` so that the `ToolboxClient` can
-> reuse the same session.
-> ```py
-> async with ClientSession() as session:
->   toolbox = ToolboxClient("http://localhost:5000", session)
-> ```
+### Load a toolset
 
-## Load a toolset
-
-You can load a toolset, a collection of related tools.
+A toolset is a collection of related tools. You can load all tools in a toolset
+or a specific one:
 
 ```py
 # Load all tools
-tools = await toolbox.load_toolset()
+tools = toolbox.load_toolset()
 
 # Load a specific toolset
-tools = await toolbox.load_toolset("my-toolset")
+tools = toolbox.load_toolset("my-toolset")
 ```
 
-## Load a single tool
-
-You can also load a single tool.
+### Load a single tool
 
 ```py
-tool = await toolbox.load_tool("my-tool")
+tool = toolbox.load_tool("my-tool")
 ```
 
-## Use with LlamaIndex
-
-LlamaIndex agents can dynamically choose and execute tools based on the user
-input. The user can include the tools loaded from the Toolbox SDK in the agent's
-toolkit.
-
-```py
-from llama_index.llms.vertex import Vertex
-from llama_index.core.agent import ReActAgent
-
-model = Vertex(model="gemini-1.5-flash")
-
-# Initialize agent with tools
-agent = ReActAgent.from_tools(tools, llm=model, verbose=True)
-
-# Query the agent
-response = agent.query("Get some response from the agent.")
-```
+Loading individual tools gives you finer-grained control over which tools are
+available to your LLM agent.
 
 ## Manual usage
 
-You can also execute a tool manually using the `acall` method.
+Execute a tool manually using the `call` method:
 
 ```py
-result = await tools[0].acall({ "name": "Alice", "age": 30 })
+result = tools[0].call(name="Alice", age=30)
+```
+
+This is useful for testing tools or when you need precise control over tool
+execution outside of an agent framework.
+
+## Use with LlamaIndex
+
+LlamaIndex's agents can dynamically choose and execute tools based on the user
+input. Include tools loaded from the Toolbox SDK in the agent's toolkit:
+
+```py
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.core.agent.workflow import AgentWorkflow
+
+vertex_model = GoogleGenAI(
+    model="gemini-1.5-pro",
+    vertexai_config={"project": "project-id", "location": "us-central1"},
+)
+
+# Initialize agent with tools
+agent = AgentWorkflow.from_tools_or_functions(
+    tools,
+    llm=vertex_model,
+    system_prompt="You are a helpful assistant.",
+)
+
+# Query the agent
+response = await agent.run(user_msg="Get some response from the agent.")
+print(response)
+```
+
+### Maintain state
+
+To maintain state for the agent, add context as follows:
+
+```py
+from llama_index.core.agent.workflow import AgentWorkflow
+from llama_index.core.workflow import Context
+from llama_index.llms.google_genai import GoogleGenAI
+
+vertex_model = GoogleGenAI(
+    model="gemini-1.5-pro",
+    vertexai_config={"project": "twisha-dev", "location": "us-central1"},
+)
+agent = AgentWorkflow.from_tools_or_functions(
+    tools,
+    llm=vertex_model,
+    system_prompt="You are a helpful assistant",
+)
+
+# Save memory in agent context
+ctx = Context(agent)
+response = await agent.run(user_msg="Give me some response.", ctx=ctx)
+print(response)
 ```
 
 ## Authenticating Tools
@@ -110,87 +171,159 @@ result = await tools[0].acall({ "name": "Alice", "age": 30 })
 > [!WARNING]
 > Always use HTTPS to connect your application with the Toolbox service,
 > especially when using tools with authentication configured. Using HTTP exposes
-> your application to serious security risks, including unauthorized access to
-> user information and man-in-the-middle attacks, where sensitive data can be
-> intercepted.
+> your application to serious security risks.
 
-Some tools in your Toolbox configuration might require user authentication to
-access sensitive data. This section guides you on how to configure tools for
-authentication and use them with the SDK.
+Some tools require user authentication to access sensitive data.
 
 ### Supported Authentication Mechanisms
-The Toolbox SDK currently supports authentication using [OIDC
-protocol](https://openid.net/specs/openid-connect-core-1_0.html). Specifically,
-it uses [ID
-tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) and *not*
-access tokens for [Google OAuth
+Toolbox currently supports authentication using the [OIDC
+protocol](https://openid.net/specs/openid-connect-core-1_0.html) with [ID
+tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) (not
+access tokens) for [Google OAuth
 2.0](https://cloud.google.com/apigee/docs/api-platform/security/oauth/oauth-home).
 
-### Configuring Tools for Authentication
+### Configure Tools
 
 Refer to [these
-instructions](../../docs/tools/README.md#authenticated-parameters) on
-configuring tools for authenticated parameters.
+instructions](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters) 
+on configuring tools for authenticated parameters.
 
-### Configure SDK for Authentication
+### Configure SDK
 
-Provide the `auth_tokens` parameter to the `load_tool` or `load_toolset` calls
-with a dictionary. The keys of this dictionary should match the names of the
-authentication sources configured in your tools file (e.g., `my_auth_service`),
-and the values should be callable functions (e.g., lambdas or regular functions)
-that return the ID token of the logged-in user.
-
-Here's an example:
+You need a method to retrieve an ID token from your authentication service:
 
 ```py
-def get_auth_token():
+async def get_auth_token():
     # ... Logic to retrieve ID token (e.g., from local storage, OAuth flow)
     # This example just returns a placeholder. Replace with your actual token retrieval.
-    return "YOUR_ID_TOKEN"
+    return "YOUR_ID_TOKEN" # Placeholder
+```
 
-toolbox = ToolboxClient("http://localhost:5000")
+#### Add an Auth Token to a Tool
 
-tools = toolbox.load_toolset(auth_tokens={ "my_auth_service": get_auth_token })
+Adding an auth token to a tool allows users to use the following Features:
+- [Authorized Invocations](https://googleapis.github.io/genai-toolbox/resources/tools/#authorized-invocations): The
+tool is validated by the auth service before the call can be invoked. Toolbox will reject all calls that fail to 
+validate or have an invalid token.
+- [Authenticated Parameters](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters): These
+replace the value of a parameter with a field from an [OIDC claim](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims). 
+Toolbox will automatically resolve the ID token provided by the client and replace the parameter in the tool call.
+
+
+```py
+toolbox = ToolboxClient("http://127.0.0.1:5000")
+tools = toolbox.load_toolset()
+
+auth_tool = tools[0].add_auth_token("my_auth", get_auth_token) # Single token
+
+multi_auth_tool = tools[0].add_auth_tokens({"my_auth", get_auth_token}) # Multiple tokens
 
 # OR
 
-tool = toolbox.load_tool("my_tool", auth_tokens={ "my_auth_service": get_auth_token })
+auth_tools = [tool.add_auth_token("my_auth", get_auth_token) for tool in tools]
 ```
 
-Alternatively, you can call the `add_auth_token` method to configure
-authentication separately.
+You can also specify an auth token while loading.
 
 ```py
-toolbox.add_auth_token("my_auth_service", get_auth_token)
+auth_tool = toolbox.load_tool(auth_tokens={"my_auth": get_auth_token})
+
+auth_tools = toolbox.load_toolset(auth_tokens={"my_auth": get_auth_token})
 ```
 
 > [!NOTE]
-> Authentication tokens added via `load_tool`, `load_toolset`, or
-> `add_auth_token` apply to all subsequent tool invocations, regardless of when
-> the tool was loaded. This ensures a consistent authentication context.
+> Adding auth tokens during loading only affect the tools loaded within
+> that call.
 
 ### Complete Example
+
+```py
+from toolbox_llamaindex import ToolboxClient
+
+async def get_auth_token():
+    # ... Logic to retrieve ID token (e.g., from local storage, OAuth flow)
+    # This example just returns a placeholder. Replace with your actual token retrieval.
+    return "YOUR_ID_TOKEN" # Placeholder
+
+toolbox = ToolboxClient("http://127.0.0.1:5000")
+tool = toolbox.load_tool("my-tool")
+
+auth_tool = tool.add_auth_token("my_auth", get_auth_token)
+result = auth_tool.call(input="some input")
+print(result)
+```
+
+## Binding Parameter Values
+
+Predetermine values for tool parameters using the SDK. These values won't be
+modified by the LLM. This is useful for:
+
+* **Protecting sensitive information:**  API keys, secrets, etc.
+* **Enforcing consistency:** Ensuring specific values for certain parameters.
+* **Pre-filling known data:**  Providing defaults or context.
+
+### Binding Parameters to a Tool
+
+```py
+toolbox = ToolboxClient("http://127.0.0.1:5000")
+tools = toolbox.load_toolset()
+
+bound_tool = tool[0].bind_param("param", "value") # Single param
+
+multi_bound_tool = tools[0].bind_params({"param1": "value1", "param2": "value2"}) # Multiple params
+
+# OR
+
+bound_tools = [tool.bind_param("param", "value") for tool in tools]
+```
+
+### Binding Parameters While Loading
+
+```py
+bound_tool = toolbox.load_tool(bound_params={"param": "value"})
+
+bound_tools = toolbox.load_toolset(bound_params={"param": "value"})
+```
+
+> [!NOTE]
+> Bound values during loading only affect the tools loaded in that call.
+
+### Binding Dynamic Values
+
+Use a function to bind dynamic values:
+
+```py
+def get_dynamic_value():
+  # Logic to determine the value
+  return "dynamic_value"
+
+dynamic_bound_tool = tool.bind_param("param", get_dynamic_value)
+```
+
+> [!IMPORTANT]
+> You don't need to modify tool configurations to bind parameter values.
+
+## Asynchronous Usage
+
+For better performance through [cooperative
+multitasking](https://en.wikipedia.org/wiki/Cooperative_multitasking), you can
+use the asynchronous interfaces of the `ToolboxClient`.
+
+> [!Note]
+> Asynchronous interfaces like `aload_tool` and `aload_toolset` require an
+> asynchronous environment. For guidance on running asynchronous Python
+> programs, see [asyncio
+> documentation](https://docs.python.org/3/library/asyncio-runner.html#running-an-asyncio-program).
 
 ```py
 import asyncio
 from toolbox_llamaindex import ToolboxClient
 
-async def get_auth_token():
-    # Replace with your actual ID token retrieval logic.
-    # For example, using a library like google-auth
-    # from google.oauth2 import id_token
-    # from google.auth.transport import requests
-    # request = requests.Request()
-    # id_token_string = id_token.fetch_id_token(request, "YOUR_AUDIENCE")# Replace with your audience
-    # return id_token_string
-    return "YOUR_ACTUAL_ID_TOKEN" # placeholder
-
 async def main():
-    toolbox = ToolboxClient("http://localhost:5000")
-    toolbox.add_auth_token("my_auth_service", get_auth_token)
-    tools = await toolbox.load_toolset()
-    result = await tools[0].acall({"input": "some input"})
-    print(result)
+    toolbox = ToolboxClient("http://127.0.0.1:5000")
+    tool = await toolbox.aload_tool("my-tool")
+    tools = await toolbox.aload_toolset()
+    response = await tool.acall()
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -12,18 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Schedule Reporter
-
-on:
-  schedule:
-    - cron: '0 6 * * *'  # Runs at 6 AM every morning
-
-jobs:
-  run_reporter:
-    permissions:
-        issues: 'write'
-        checks: 'read'
-        contents: 'read'
-    uses: ./.github/workflows/cloud_build_failure_reporter.yml
-    with:
-      trigger_names: "llamaindex-python-sdk-test-nightly,llamaindex-python-sdk-test-on-merge"
+__version__ = "0.1.0"

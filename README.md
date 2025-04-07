@@ -1,7 +1,7 @@
-# GenAI Toolbox SDK
+# GenAI Toolbox LlamaIndex SDK
 
 This SDK allows you to seamlessly integrate the functionalities of
-[Toolbox](https://github.com/googleapis/genai-toolbox) into your LLM
+[Toolbox](https://github.com/googleapis/genai-toolbox) into your LlamaIndex LLM
 applications, enabling advanced orchestration and interaction with GenAI models.
 
 <!-- TOC ignore:true -->
@@ -12,20 +12,20 @@ applications, enabling advanced orchestration and interaction with GenAI models.
 - [Quickstart](#quickstart)
 - [Usage](#usage)
 - [Loading Tools](#loading-tools)
-    - [Load a toolset](#load-a-toolset)
-    - [Load a single tool](#load-a-single-tool)
+  - [Load a toolset](#load-a-toolset)
+  - [Load a single tool](#load-a-single-tool)
 - [Use with LlamaIndex](#use-with-llamaindex)
 - [Manual usage](#manual-usage)
 - [Authenticating Tools](#authenticating-tools)
-    - [Supported Authentication Mechanisms](#supported-authentication-mechanisms)
-    - [Configure Tools](#configure-tools)
-    - [Configure SDK](#configure-sdk)
-        - [Add An Auth Token to a Tool](#add-an-auth-token-to-a-tool)
-    - [Complete Example](#complete-example)
+  - [Supported Authentication Mechanisms](#supported-authentication-mechanisms)
+  - [Configure Tools](#configure-tools)
+  - [Configure SDK](#configure-sdk)
+    - [Add An Auth Token to a Tool](#add-an-auth-token-to-a-tool)
+  - [Complete Example](#complete-example)
 - [Binding Parameter Values](#binding-parameter-values)
-    - [Binding Parameters to a Tool](#binding-parameters-to-a-tool)
-    - [Binding Parameters While Loading](#binding-parameters-while-loading)
-    - [Binding Dynamic Values](#binding-dynamic-values)
+  - [Binding Parameters to a Tool](#binding-parameters-to-a-tool)
+  - [Binding Parameters While Loading](#binding-parameters-while-loading)
+  - [Binding Dynamic Values](#binding-dynamic-values)
 - [Asynchronous Usage](#asynchronous-usage)
 
 <!-- /TOC -->
@@ -176,6 +176,7 @@ print(response)
 Some tools require user authentication to access sensitive data.
 
 ### Supported Authentication Mechanisms
+
 Toolbox currently supports authentication using the [OIDC
 protocol](https://openid.net/specs/openid-connect-core-1_0.html) with [ID
 tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken) (not
@@ -185,7 +186,7 @@ access tokens) for [Google OAuth
 ### Configure Tools
 
 Refer to [these
-instructions](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters) 
+instructions](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters)
 on configuring tools for authenticated parameters.
 
 ### Configure SDK
@@ -202,13 +203,13 @@ async def get_auth_token():
 #### Add an Auth Token to a Tool
 
 Adding an auth token to a tool allows users to use the following Features:
+
 - [Authorized Invocations](https://googleapis.github.io/genai-toolbox/resources/tools/#authorized-invocations): The
-tool is validated by the auth service before the call can be invoked. Toolbox will reject all calls that fail to 
+tool is validated by the auth service before the call can be invoked. Toolbox will reject all calls that fail to
 validate or have an invalid token.
 - [Authenticated Parameters](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters): These
-replace the value of a parameter with a field from an [OIDC claim](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims). 
+replace the value of a parameter with a field from an [OIDC claim](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims).
 Toolbox will automatically resolve the ID token provided by the client and replace the parameter in the tool call.
-
 
 ```py
 toolbox = ToolboxClient("http://127.0.0.1:5000")
@@ -258,9 +259,9 @@ print(result)
 Predetermine values for tool parameters using the SDK. These values won't be
 modified by the LLM. This is useful for:
 
-* **Protecting sensitive information:**  API keys, secrets, etc.
-* **Enforcing consistency:** Ensuring specific values for certain parameters.
-* **Pre-filling known data:**  Providing defaults or context.
+- **Protecting sensitive information:**  API keys, secrets, etc.
+- **Enforcing consistency:** Ensuring specific values for certain parameters.
+- **Pre-filling known data:**  Providing defaults or context.
 
 ### Binding Parameters to a Tool
 

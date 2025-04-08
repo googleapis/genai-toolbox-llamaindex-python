@@ -1,4 +1,5 @@
-# GenAI Toolbox SDK
+![MCP Toolbox Logo](https://raw.githubusercontent.com/googleapis/genai-toolbox/main/logo.png)
+# MCP Toolbox SDK
 
 This SDK allows you to seamlessly integrate the functionalities of
 [Toolbox](https://github.com/googleapis/genai-toolbox) into your LLM

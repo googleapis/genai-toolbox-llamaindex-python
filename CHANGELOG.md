@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2](https://github.com/googleapis/genai-toolbox-llamaindex-python/compare/v0.1.1...v0.1.2) (2025-04-25)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency pytest-cov to v6.1.1 ([#69](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/69)) ([7571180](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/7571180b7e0f55d067cd894158c9d5b6c8899ac0))
+
+
+### Documentation
+
+* Add LlamaIndex to README.md` ([#70](https://github.com/googleapis/genai-toolbox-llamaindex-python/issues/70)) ([fb6e5bc](https://github.com/googleapis/genai-toolbox-llamaindex-python/commit/fb6e5bcf0d8769e4cf8c9f106bc6c9b778b927d9))
+
 ## [0.1.1](https://github.com/googleapis/genai-toolbox-llamaindex-python/compare/v0.1.0...v0.1.1) (2025-04-04)
 
 
